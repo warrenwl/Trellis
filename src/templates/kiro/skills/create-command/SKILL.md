@@ -1,43 +1,43 @@
 ---
 name: create-command
-description: "Create New Skill"
+description: "创建新技能"
 ---
 
-# Create New Skill
+# 创建新技能
 
-Create a new Kiro skill in `.kiro/skills/<skill-name>/SKILL.md` based on user requirements.
+根据用户需求，在 `.kiro/skills/<skill-name>/SKILL.md` 中创建新的 Kiro 技能。
 
-## Usage
+## 使用方法
 
 ```bash
 $create-command <skill-name> <description>
 ```
 
-**Example**:
+**示例**：
 ```bash
-$create-command review-pr Check PR code changes against project guidelines
+$create-command review-pr 检查 PR 代码变更是否符合项目指南
 ```
 
-## Execution Steps
+## 执行步骤
 
-### 1. Parse Input
+### 1. 解析输入
 
-Extract from user input:
-- **Skill name**: Use kebab-case (e.g., `review-pr`)
-- **Description**: What the skill should accomplish
+从用户输入中提取：
+- **技能名称**：使用 kebab-case（例如 `review-pr`）
+- **描述**：技能应该完成什么
 
-### 2. Analyze Requirements
+### 2. 分析需求
 
-Determine skill type based on description:
-- **Initialization**: Read docs, establish context
-- **Pre-development**: Read guidelines, check dependencies
-- **Code check**: Validate code quality and guideline compliance
-- **Recording**: Record progress, questions, structure changes
-- **Generation**: Generate docs or code templates
+根据描述确定技能类型：
+- **初始化**：阅读文档，建立上下文
+- **开发前**：阅读指南，检查依赖
+- **代码检查**：验证代码质量和指南合规性
+- **记录**：记录进度、问题、结构变化
+- **生成**：生成文档或代码模板
 
-### 3. Generate Skill Content
+### 3. 生成技能内容
 
-Minimum `SKILL.md` structure:
+最低 `SKILL.md` 结构：
 
 ```markdown
 ---
@@ -45,57 +45,57 @@ name: <skill-name>
 description: "<description>"
 ---
 
-# <Skill Title>
+# <技能标题>
 
-<Instructions for when and how to use this skill>
+<关于何时以及如何使用此技能的说明>
 ```
 
-### 4. Create Files
+### 4. 创建文件
 
-Create:
+创建：
 - `.kiro/skills/<skill-name>/SKILL.md`
 
-### 5. Confirm Creation
+### 5. 确认创建
 
-Output result:
+输出结果：
 
 ```text
-[OK] Created Skill: <skill-name>
+[OK] 已创建技能：<skill-name>
 
-File path:
+文件路径：
 - .kiro/skills/<skill-name>/SKILL.md
 
-Usage:
-- Trigger directly with $<skill-name>
-- Or open /skills and select it
+使用方法：
+- 直接用 $<skill-name> 触发
+- 或打开 /skills 并选择它
 
-Description:
+描述：
 <description>
 ```
 
-## Skill Content Guidelines
+## 技能内容指南
 
-### [OK] Good skill content
+### [OK] 好的技能内容
 
-1. **Clear and concise**: Immediately understandable
-2. **Executable**: AI can follow steps directly
-3. **Well-scoped**: Clear boundaries of what to do and not do
-4. **Has output**: Specifies expected output format (if needed)
+1. **清晰简洁**：立即可理解
+2. **可执行**：AI 可以直接遵循步骤
+3. **范围明确**：清楚要做什么和不做什么的边界
+4. **有输出**：指定预期输出格式（如需要）
 
-### [X] Avoid
+### [X] 避免
 
-1. **Too vague**: e.g., "optimize code"
-2. **Too complex**: Single skill should not exceed 100 lines
-3. **Duplicate functionality**: Check if similar skill exists first
+1. **太模糊**：例如"优化代码"
+2. **太复杂**：单个技能不应超过 100 行
+3. **重复功能**：先检查是否存在类似技能
 
-## Naming Conventions
+## 命名约定
 
-| Skill Type | Prefix | Example |
+| 技能类型 | 前缀 | 示例 |
 |------------|--------|---------|
-| Session Start | `start` | `start` |
-| Pre-development | `before-` | `before-frontend-dev` |
-| Check | `check-` | `check-frontend` |
-| Record | `record-` | `record-session` |
-| Generate | `generate-` | `generate-api-doc` |
-| Update | `update-` | `update-changelog` |
-| Other | Verb-first | `review-code`, `sync-data` |
+| 会话开始 | `start` | `start` |
+| 开发前 | `before-` | `before-frontend-dev` |
+| 检查 | `check-` | `check-frontend` |
+| 记录 | `record-` | `record-session` |
+| 生成 | `generate-` | `generate-api-doc` |
+| 更新 | `update-` | `update-changelog` |
+| 其他 | 动词优先 | `review-code`, `sync-data` |

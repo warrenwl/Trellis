@@ -1,492 +1,491 @@
 ---
 name: brainstorm
-description: "Brainstorm - Requirements Discovery (AI Coding Enhanced)"
+description: "头脑风暴 - 需求发现 (AI 编程增强版)"
 ---
 
-# Brainstorm - Requirements Discovery (AI Coding Enhanced)
+# 头脑风暴 - 需求发现 (AI 编程增强版)
 
-Guide AI through collaborative requirements discovery **before implementation**, optimized for AI coding workflows:
+在**实施之前**，引导 AI 进行协作式需求发现，为 AI 编程工作流优化：
 
-* **Task-first** (capture ideas immediately)
-* **Action-before-asking** (reduce low-value questions)
-* **Research-first** for technical choices (avoid asking users to invent options)
-* **Diverge → Converge** (expand thinking, then lock MVP)
-
----
-
-## When to Use
-
-Triggered from `$start` when the user describes a development task, especially when:
-
-* requirements are unclear or evolving
-* there are multiple valid implementation paths
-* trade-offs matter (UX, reliability, maintainability, cost, performance)
-* the user might not know the best options up front
+* **任务优先**（立即捕捉想法）
+* **先行动后提问**（减少低价值问题）
+* **研究优先**（技术选型时避免让用户凭空想象选项）
+* **发散 → 收敛**（扩展思路，然后锁定 MVP）
 
 ---
 
-## Core Principles (Non-negotiable)
+## 使用时机
 
-1. **Task-first (capture early)**
-   Always ensure a task exists at the start so the user's ideas are recorded immediately.
+当用户描述开发任务时从 `$start` 触发，尤其适用于：
 
-2. **Action before asking**
-   If you can derive the answer from repo code, docs, configs, conventions, or quick research — do that first.
-
-3. **One question per message**
-   Never overwhelm the user with a list of questions. Ask one, update PRD, repeat.
-
-4. **Prefer concrete options**
-   For preference/decision questions, present 2–3 feasible, specific approaches with trade-offs.
-
-5. **Research-first for technical choices**
-   If the decision depends on industry conventions / similar tools / established patterns, do research first, then propose options.
-
-6. **Diverge → Converge**
-   After initial understanding, proactively consider future evolution, related scenarios, and failure/edge cases — then converge to an MVP with explicit out-of-scope.
-
-7. **No meta questions**
-   Do not ask "should I search?" or "can you paste the code so I can continue?"
-   If you need information: search/inspect. If blocked: ask the minimal blocking question.
+* 需求不明确或不断演变
+* 有多种有效的实现路径
+* 需要权衡取舍（用户体验、可靠性、可维护性、成本、性能）
+* 用户可能一开始并不知道最佳选项
 
 ---
 
-## Step 0: Ensure Task Exists (ALWAYS)
+## 核心原则（不可妥协）
 
-Before any Q&A, ensure a task exists. If none exists, create one immediately.
+1. **任务优先（尽早捕捉）**
+   确保开始时存在任务，这样用户的想法会被立即记录下来。
 
-* Use a **temporary working title** derived from the user's message.
-* It's OK if the title is imperfect — refine later in PRD.
+2. **先行动后提问**
+   如果您可以从仓库代码、文档、配置、约定或快速研究中推导出答案——请先这样做。
+
+3. **每条消息一个问题**
+   不要用一系列问题淹没用户。问一个，更新 PRD，再重复。
+
+4. **倾向具体选项**
+   对于偏好/决策问题，提出 2-3 个可行的、具体的方法，并说明权衡。
+
+5. **技术选型研究优先**
+   如果决策取决于行业惯例/类似工具/已建立的模式，请先研究，然后提出选项。
+
+6. **发散 → 收敛**
+   在初步理解后，主动考虑未来的演进、相关场景和失败/边缘情况——然后收敛到一个有明确不在范围内的 MVP。
+
+7. **不要问元问题**
+   不要问"我应该搜索吗？"或"你能粘贴代码让我继续吗？"
+   如果需要信息：搜索/检查。如果受阻：问最小的阻塞问题。
+
+---
+
+## 步骤 0：确保任务存在（始终执行）
+
+在任何问答之前，确保任务存在。如果不存在，立即创建一个。
+
+* 使用从用户消息派生的**临时工作标题**。
+* 标题不完美没关系——稍后在 PRD 中完善。
 
 ```bash
 TASK_DIR=$(python3 ./.trellis/scripts/task.py create "brainstorm: <short goal>" --slug <auto>)
 ```
 
-Create/seed `prd.md` immediately with what you know:
+立即用您已知的信息创建/填充 `prd.md`：
 
 ```markdown
 # brainstorm: <short goal>
 
-## Goal
+## 目标
 
-<one paragraph: what + why>
+<一段话：什么 + 为什么>
 
-## What I already know
+## 我已经知道的
 
-* <facts from user message>
-* <facts discovered from repo/docs>
+* <来自用户消息的事实>
+* <从仓库/文档发现的事实>
 
-## Assumptions (temporary)
+## 假设（临时）
 
-* <assumptions to validate>
+* <需要验证的假设>
 
-## Open Questions
+## 待解决的问题
 
-* <ONLY Blocking / Preference questions; keep list short>
+* <仅阻塞/偏好问题；保持列表简短>
 
-## Requirements (evolving)
+## 需求（演进中）
 
-* <start with what is known>
+* <从已知的内容开始>
 
-## Acceptance Criteria (evolving)
+## 验收标准（演进中）
 
-* [ ] <testable criterion>
+* [ ] <可测试的标准>
 
-## Definition of Done (team quality bar)
+## 完成的定义（团队质量门槛）
 
-* Tests added/updated (unit/integration where appropriate)
-* Lint / typecheck / CI green
-* Docs/notes updated if behavior changes
-* Rollout/rollback considered if risky
+* 添加/更新测试（适当的单元/集成测试）
+* Lint / 类型检查 / CI 绿色
+* 如果行为改变，更新文档/笔记
+* 如果有风险，考虑回滚/发布
 
-## Out of Scope (explicit)
+## 范围之外（明确）
 
-* <what we will not do in this task>
+* <我们在此任务中不会做的事情>
 
-## Technical Notes
+## 技术笔记
 
-* <files inspected, constraints, links, references>
-* <research notes summary if applicable>
+* <检查的文件、约束、链接、引用>
+* <研究笔记摘要（如果适用）>
 ```
 
 ---
 
-## Step 1: Auto-Context (DO THIS BEFORE ASKING QUESTIONS)
+## 步骤 1：自动获取上下文（提问之前执行此步骤）
 
-Before asking questions like "what does the code look like?", gather context yourself:
+在问"代码是什么样的？"之类的问题之前，自己收集上下文：
 
-### Repo inspection checklist
+### 仓库检查清单
 
-* Identify likely modules/files impacted
-* Locate existing patterns (similar features, conventions, error handling style)
-* Check configs, scripts, existing command definitions
-* Note any constraints (runtime, dependency policy, build tooling)
+* 识别可能受影响的模块/文件
+* 找到现有模式（类似功能、约定、错误处理风格）
+* 检查配置、脚本、现有命令定义
+* 注意任何约束（运行时、依赖策略、构建工具）
 
-### Documentation checklist
+### 文档检查清单
 
-* Look for existing PRDs/specs/templates
-* Look for command usage examples, README, ADRs if any
+* 查找现有的 PRD/规范/模板
+* 查找命令使用示例、README、ADR（如果有）
 
-Write findings into PRD:
+将发现写入 PRD：
 
-* Add to `What I already know`
-* Add constraints/links to `Technical Notes`
+* 添加到"我已经知道的"
+* 将约束/链接添加到"技术笔记"
 
 ---
 
-## Step 2: Classify Complexity (still useful, not gating task creation)
+## 步骤 2：分类复杂度（仍然有用，但不阻止任务创建）
 
-| Complexity   | Criteria                                               | Action                                      |
+| 复杂度 | 标准 | 操作 |
 | ------------ | ------------------------------------------------------ | ------------------------------------------- |
-| **Trivial**  | Single-line fix, typo, obvious change                  | Skip brainstorm, implement directly         |
-| **Simple**   | Clear goal, 1–2 files, scope well-defined              | Ask 1 confirm question, then implement      |
-| **Moderate** | Multiple files, some ambiguity                         | Light brainstorm (2–3 high-value questions) |
-| **Complex**  | Vague goal, architectural choices, multiple approaches | Full brainstorm                             |
+| **简单** | 单行修复、拼写错误、明显变化 | 跳过头脑风暴，直接实现 |
+| **一般** | 目标清晰，1-2 个文件，范围明确 | 问 1 个确认问题，然后实现 |
+| **中等** | 多个文件，有些歧义 | 轻度头脑风暴（2-3 个高价值问题） |
+| **复杂** | 目标模糊，架构选择，多种方法 | 完整头脑风暴 |
 
-> Note: Task already exists from Step 0. Classification only affects depth of brainstorming.
-
----
-
-## Step 3: Question Gate (Ask ONLY high-value questions)
-
-Before asking ANY question, run the following gate:
-
-### Gate A — Can I derive this without the user?
-
-If answer is available via:
-
-* repo inspection (code/config)
-* docs/specs/conventions
-* quick market/OSS research
-
-→ **Do not ask.** Fetch it, summarize, update PRD.
-
-### Gate B — Is this a meta/lazy question?
-
-Examples:
-
-* "Should I search?"
-* "Can you paste the code so I can proceed?"
-* "What does the code look like?" (when repo is available)
-
-→ **Do not ask.** Take action.
-
-### Gate C — What type of question is it?
-
-* **Blocking**: cannot proceed without user input
-* **Preference**: multiple valid choices, depends on product/UX/risk preference
-* **Derivable**: should be answered by inspection/research
-
-→ Only ask **Blocking** or **Preference**.
+> 注意：任务已从步骤 0 创建。分类只会影响头脑风暴的深度。
 
 ---
 
-## Step 4: Research-first Mode (Mandatory for technical choices)
+## 步骤 3：问题关卡（只问高价值问题）
 
-### Trigger conditions (any → research-first)
+在问任何问题之前，执行以下关卡：
 
-* The task involves selecting an approach, library, protocol, framework, template system, plugin mechanism, or CLI UX convention
-* The user asks for "best practice", "how others do it", "recommendation"
-* The user can't reasonably enumerate options
+### 关卡 A — 我能否不通过用户推导出这个？
 
-### Research steps
+如果答案可以通过以下方式获得：
 
-1. Identify 2–4 comparable tools/patterns
-2. Summarize common conventions and why they exist
-3. Map conventions onto our repo constraints
-4. Produce **2–3 feasible approaches** for our project
+* 仓库检查（代码/配置）
+* 文档/规范/约定
+* 快速市场/开源研究
 
-### Research output format (PRD)
+→ **不要问。** 获取它，总结它，更新 PRD。
 
-Add a section in PRD (either within Technical Notes or as its own):
+### 关卡 B — 这是元问题/懒问题吗？
+
+示例：
+
+* "我应该搜索吗？"
+* "你能粘贴代码让我继续吗？"
+* "代码是什么样的？"（当仓库可用时）
+
+→ **不要问。** 采取行动。
+
+### 关卡 C — 这是什么类型的问题？
+
+* **阻塞**：没有用户输入无法继续
+* **偏好**：多个有效选择，取决于产品/用户体验/风险偏好
+* **可推导**：应该通过检查/研究回答
+
+→ 只问**阻塞**或**偏好**问题。
+
+---
+
+## 步骤 4：研究优先模式（技术选型必需）
+
+### 触发条件（任一 → 研究优先）
+
+* 任务涉及选择方法、库、协议、框架、模板系统、插件机制或 CLI 用户体验约定
+* 用户要求"最佳实践"、"别人怎么做"、"推荐"
+* 用户无法合理列举选项
+
+### 研究步骤
+
+1. 识别 2-4 个可比较的工具/模式
+2. 总结常见约定及其存在原因
+3. 将约定映射到我们仓库的约束
+4. 为我们的项目产生 **2-3 个可行方法**
+
+### 研究输出格式（PRD）
+
+在 PRD 中添加一个部分（要么在技术笔记内，要么独立）：
 
 ```markdown
-## Research Notes
+## 研究笔记
 
-### What similar tools do
-
-* ...
-* ...
-
-### Constraints from our repo/project
+### 类似工具的做法
 
 * ...
+* ...
 
-### Feasible approaches here
+### 我们仓库/项目的约束
 
-**Approach A: <name>** (Recommended)
+* ...
 
-* How it works:
-* Pros:
-* Cons:
+### 此处的可行方法
 
-**Approach B: <name>**
+**方法 A: <name>**（推荐）
 
-* How it works:
-* Pros:
-* Cons:
+* 工作原理：
+* 优点：
+* 缺点：
 
-**Approach C: <name>** (optional)
+**方法 B: <name>**
+
+* 工作原理：
+* 优点：
+* 缺点：
+
+**方法 C: <name>**（可选）
 
 * ...
 ```
 
-Then ask **one** preference question:
+然后问**一个**偏好问题：
 
-* "Which approach do you prefer: A / B / C (or other)?"
-
----
-
-## Step 5: Expansion Sweep (DIVERGE) — Required after initial understanding
-
-After you can summarize the goal, proactively broaden thinking before converging.
-
-### Expansion categories (keep to 1–2 bullets each)
-
-1. **Future evolution**
-
-   * What might this feature become in 1–3 months?
-   * What extension points are worth preserving now?
-
-2. **Related scenarios**
-
-   * What adjacent commands/flows should remain consistent with this?
-   * Are there parity expectations (create vs update, import vs export, etc.)?
-
-3. **Failure & edge cases**
-
-   * Conflicts, offline/network failure, retries, idempotency, compatibility, rollback
-   * Input validation, security boundaries, permission checks
-
-### Expansion message template (to user)
-
-```markdown
-I understand you want to implement: <current goal>.
-
-Before diving into design, let me quickly diverge to consider three categories (to avoid rework later):
-
-1. Future evolution: <1–2 bullets>
-2. Related scenarios: <1–2 bullets>
-3. Failure/edge cases: <1–2 bullets>
-
-For this MVP, which would you like to include (or none)?
-
-1. Current requirement only (minimal viable)
-2. Add <X> (reserve for future extension)
-3. Add <Y> (improve robustness/consistency)
-4. Other: describe your preference
-```
-
-Then update PRD:
-
-* What's in MVP → `Requirements`
-* What's excluded → `Out of Scope`
+* "您更喜欢哪种方法：A / B / C（或其他）？"
 
 ---
 
-## Step 6: Q&A Loop (CONVERGE)
+## 步骤 5：扩展扫描（发散）— 初步理解后必需
 
-### Rules
+在您能总结目标之后，在收敛之前主动扩展思路。
 
-* One question per message
-* Prefer multiple-choice when possible
-* After each user answer:
+### 扩展类别（每项保持 1-2 点）
 
-  * Update PRD immediately
-  * Move answered items from `Open Questions` → `Requirements`
-  * Update `Acceptance Criteria` with testable checkboxes
-  * Clarify `Out of Scope`
+1. **未来演进**
 
-### Question priority (recommended)
+   * 这个功能在 1-3 个月内可能变成什么？
+   * 哪些扩展点值得现在保留？
 
-1. **MVP scope boundary** (what is included/excluded)
-2. **Preference decisions** (after presenting concrete options)
-3. **Failure/edge behavior** (only for MVP-critical paths)
-4. **Success metrics & Acceptance Criteria** (what proves it works)
+2. **相关场景**
 
-### Preferred question format (multiple choice)
+   * 哪些相邻命令/流程应与此保持一致？
+   * 是否有对称性期望（创建 vs 更新，导入 vs 导出等）？
+
+3. **失败和边缘情况**
+
+   * 冲突、离线/网络失败、重试、幂等性、兼容性、回滚
+   * 输入验证、安全边界、权限检查
+
+### 扩展消息模板（给用户）
 
 ```markdown
-For <topic>, which approach do you prefer?
+我理解您想实现：<current goal>。
 
-1. **Option A** — <what it means + trade-off>
-2. **Option B** — <what it means + trade-off>
-3. **Option C** — <what it means + trade-off>
-4. **Other** — describe your preference
+在深入设计之前，让我快速发散思考三个类别（以避免以后返工）：
+
+1. 未来演进：<1–2 点>
+2. 相关场景：<1–2 点>
+3. 失败/边缘情况：<1–2 点>
+
+对于这个 MVP，您想包含哪些（还是没有）？
+
+1. 仅当前需求（最小可行）
+2. 添加 <X>（为未来扩展保留）
+3. 添加 <Y>（提高健壮性/一致性）
+4. 其他：描述您的偏好
 ```
+
+然后更新 PRD：
+
+* MVP 中的内容 → `需求`
+* 排除的内容 → `范围之外`
 
 ---
 
-## Step 7: Propose Approaches + Record Decisions (Complex tasks)
+## 步骤 6：问答循环（收敛）
 
-After requirements are clear enough, propose 2–3 approaches (if not already done via research-first):
+### 规则
 
-```markdown
-Based on current information, here are 2–3 feasible approaches:
+* 每条消息一个问题
+* 尽可能使用选择题
+* 每次用户回答后：
 
-**Approach A: <name>** (Recommended)
+  * 立即更新 PRD
+  * 将已回答的项目从`待解决问题` → `需求`
+  * 用可测试的复选框更新`验收标准`
+  * 澄清`范围之外`
 
-* How:
-* Pros:
-* Cons:
+### 问题优先级（推荐）
 
-**Approach B: <name>**
+1. **MVP 范围边界**（包含/排除什么）
+2. **偏好决策**（在呈现具体选项之后）
+3. **失败/边缘行为**（仅对 MVP 关键路径）
+4. **成功指标和验收标准**（什么证明它有效）
 
-* How:
-* Pros:
-* Cons:
-
-Which direction do you prefer?
-```
-
-Record the outcome in PRD as an ADR-lite section:
+### 首选问题格式（选择题）
 
 ```markdown
-## Decision (ADR-lite)
+对于 <topic>，您更喜欢哪种方法？
 
-**Context**: Why this decision was needed
-**Decision**: Which approach was chosen
-**Consequences**: Trade-offs, risks, potential future improvements
+1. **选项 A** — <含义 + 权衡>
+2. **选项 B** — <含义 + 权衡>
+3. **选项 C** — <含义 + 权衡>
+4. **其他** — 描述您的偏好
 ```
 
 ---
 
-## Step 8: Final Confirmation + Implementation Plan
+## 步骤 7：提出方法 + 记录决策（复杂任务）
 
-When open questions are resolved, confirm complete requirements with a structured summary:
-
-### Final confirmation format
+在需求足够清晰之后，提出 2-3 种方法（如果还没有通过研究优先完成）：
 
 ```markdown
-Here's my understanding of the complete requirements:
+根据当前信息，这里有 2-3 种可行方法：
 
-**Goal**: <one sentence>
+**方法 A: <name>**（推荐）
 
-**Requirements**:
+* 如何做：
+* 优点：
+* 缺点：
+
+**方法 B: <name>**
+
+* 如何做：
+* 优点：
+* 缺点：
+
+您更喜欢哪个方向？
+```
+
+在 PRD 中将结果记录为 ADR-lite 部分：
+
+```markdown
+## 决策（ADR-lite）
+
+**背景**：为什么需要这个决策
+**决策**：选择了哪种方法
+**后果**：权衡、风险、潜在的未来改进
+```
+
+---
+
+## 步骤 8：最终确认 + 实现计划
+
+当待解决的问题得到解决时，通过结构化摘要确认完整需求：
+
+### 最终确认格式
+
+```markdown
+以下是我对完整需求的理解：
+
+**目标**：<一句话>
+
+**需求**：
 
 * ...
 * ...
 
-**Acceptance Criteria**:
+**验收标准**：
 
 * [ ] ...
 * [ ] ...
 
-**Definition of Done**:
+**完成的定义**：
 
 * ...
 
-**Out of Scope**:
+**范围之外**：
 
 * ...
 
-**Technical Approach**:
-<brief summary + key decisions>
+**技术方法**：
+<简要总结 + 关键决策>
 
-**Implementation Plan (small PRs)**:
+**实现计划（小 PR）**：
 
-* PR1: <scaffolding + tests + minimal plumbing>
-* PR2: <core behavior>
-* PR3: <edge cases + docs + cleanup>
+* PR1: <脚手架 + 测试 + 最小粘合代码>
+* PR2: <核心行为>
+* PR3: <边缘情况 + 文档 + 清理>
 
-Does this look correct? If yes, I'll proceed with implementation.
-```
+这看起来正确吗？如果是，我将开始实现。
 
-### Subtask Decomposition (Complex Tasks)
+### 子任务分解（复杂任务）
 
-For complex tasks with multiple independent work items, create subtasks:
+对于具有多个独立工作项的复杂任务，创建子任务：
 
 ```bash
-# Create child tasks
+# 创建子任务
 CHILD1=$(python3 ./.trellis/scripts/task.py create "Child task 1" --slug child1 --parent "$TASK_DIR")
 CHILD2=$(python3 ./.trellis/scripts/task.py create "Child task 2" --slug child2 --parent "$TASK_DIR")
 
-# Or link existing tasks
+# 或链接现有任务
 python3 ./.trellis/scripts/task.py add-subtask "$TASK_DIR" "$CHILD_DIR"
 ```
 
 ---
 
-## PRD Target Structure (final)
+## PRD 目标结构（最终）
 
-`prd.md` should converge to:
+`prd.md` 应该收敛为：
 
 ```markdown
-# <Task Title>
+# <任务标题>
 
-## Goal
+## 目标
 
-<why + what>
+<为什么 + 做什么>
 
-## Requirements
+## 需求
 
 * ...
 
-## Acceptance Criteria
+## 验收标准
 
 * [ ] ...
 
-## Definition of Done
+## 完成的定义
 
 * ...
 
-## Technical Approach
+## 技术方法
 
-<key design + decisions>
+<关键设计 + 决策>
 
-## Decision (ADR-lite)
+## 决策（ADR-lite）
 
-Context / Decision / Consequences
+背景 / 决策 / 后果
 
-## Out of Scope
+## 范围之外
 
 * ...
 
-## Technical Notes
+## 技术笔记
 
-<constraints, references, files, research notes>
+<约束、引用、文件、研究笔记>
 ```
 
 ---
 
-## Anti-Patterns (Hard Avoid)
+## 反模式（坚决避免）
 
-* Asking user for code/context that can be derived from repo
-* Asking user to choose an approach before presenting concrete options
-* Meta questions about whether to research
-* Staying narrowly on the initial request without considering evolution/edges
-* Letting brainstorming drift without updating PRD
+* 询问用户可以从仓库推导出的代码/上下文
+* 在呈现具体选项之前让用户选择方法
+* 关于是否要研究的问题
+* 狭隘地停留在初始请求而不考虑演进/边缘情况
+* 头脑风暴漂移而不更新 PRD
 
 ---
 
-## Integration with Start Workflow
+## 与开始工作流的集成
 
-After brainstorm completes (Step 8 confirmation approved), the flow continues to the Task Workflow's **Phase 2: Prepare for Implementation**:
+头脑风暴完成后（步骤 8 确认批准），流程继续到任务工作流的**第二阶段：准备实施**：
 
 ```text
-Brainstorm
-  Step 0: Create task directory + seed PRD
-  Step 1–7: Discover requirements, research, converge
-  Step 8: Final confirmation → user approves
+头脑风暴
+  步骤 0：创建任务目录 + 填充 PRD
+  步骤 1-7：发现需求、研究、收敛
+  步骤 8：最终确认 → 用户批准
   ↓
-Task Workflow Phase 2 (Prepare for Implementation)
-  Code-Spec Depth Check (if applicable)
-  → Research codebase (based on confirmed PRD)
-  → Configure code-spec context (jsonl files)
-  → Activate task
+任务工作流第二阶段（准备实施）
+  代码规范深度检查（如适用）
+  → 基于确认的 PRD 研究代码库
+  → 配置代码规范上下文（jsonl 文件）
+  → 激活任务
   ↓
-Task Workflow Phase 3 (Execute)
-  Implement → Check → Complete
+任务工作流第三阶段（执行）
+  实现 → 检查 → 完成
 ```
 
-The task directory and PRD already exist from brainstorm, so Phase 1 of the Task Workflow is skipped entirely.
+任务目录和 PRD 已从头脑风暴存在，因此完全跳过任务工作流的第一阶段。
 
 ---
 
-## Related Commands
+## 相关命令
 
-| Command | When to Use |
+| 命令 | 使用时机 |
 |---------|-------------|
-| `$start` | Entry point that triggers brainstorm |
-| `$finish-work` | After implementation is complete |
-| `$update-spec` | If new patterns emerge during work |
+| `$start` | 触发头脑风暴的入口点 |
+| `$finish-work` | 实现完成后 |
+| `$update-spec` | 如果工作中出现新模式 |

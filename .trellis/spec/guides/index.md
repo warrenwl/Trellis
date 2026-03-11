@@ -1,89 +1,89 @@
-# Thinking Guides
+# 思维指南
 
-> **Purpose**: Expand your thinking to catch things you might not have considered.
-
----
-
-## Why Thinking Guides?
-
-**Most bugs and tech debt come from "didn't think of that"**, not from lack of skill:
-
-- Didn't think about what happens at layer boundaries → cross-layer bugs
-- Didn't think about code patterns repeating → duplicated code everywhere
-- Didn't think about edge cases → runtime errors
-- Didn't think about future maintainers → unreadable code
-
-These guides help you **ask the right questions before coding**.
+> **目的**：扩展您的思维以发现您可能未曾考虑到的事情。
 
 ---
 
-## Available Guides
+## 为什么要有思维指南？
 
-| Guide | Purpose | When to Use |
+**大多数 bug 和技术债务来自"没想到"**，而非技能不足：
+
+- 没想到层边界会发生什么 → 跨层 bug
+- 没想到代码模式重复 → 到处重复的代码
+- 没想到边缘情况 → 运行时错误
+- 没想到未来的维护者 → 无法阅读的代码
+
+这些指南帮助您在编码前**提出正确的问题**。
+
+---
+
+## 可用指南
+
+| 指南 | 目的 | 何时使用 |
 |-------|---------|-------------|
-| [Code Reuse Thinking Guide](./code-reuse-thinking-guide.md) | Identify patterns and reduce duplication | When you notice repeated patterns |
-| [Cross-Layer Thinking Guide](./cross-layer-thinking-guide.md) | Think through data flow across layers | Features spanning multiple layers |
-| [Cross-Platform Thinking Guide](./cross-platform-thinking-guide.md) | Catch platform-specific assumptions | Scripts, paths, commands |
+| [代码复用思维指南](./code-reuse-thinking-guide.md) | 识别模式并减少重复 | 当您注意到重复模式时 |
+| [跨层思维指南](./cross-layer-thinking-guide.md) | 思考跨层的数据流 | 跨越多层的功能 |
+| [跨平台思维指南](./cross-platform-thinking-guide.md) | 发现平台特定的假设 | 脚本、路径、命令 |
 
 ---
 
-## Quick Reference: Thinking Triggers
+## 快速参考：思维触发器
 
-### When to Think About Cross-Layer Issues
+### 何时思考跨层问题
 
-- [ ] Feature touches 3+ layers (API, Service, Component, Database)
-- [ ] Data format changes between layers
-- [ ] Multiple consumers need the same data
-- [ ] You're not sure where to put some logic
+- [ ] 功能涉及 3+ 层（API、Service、Component、Database）
+- [ ] 数据格式在层之间变化
+- [ ] 多个消费者需要相同数据
+- [ ] 您不确定把某些逻辑放在哪里
 
-→ Read [Cross-Layer Thinking Guide](./cross-layer-thinking-guide.md)
+→ 阅读[跨层思维指南](./cross-layer-thinking-guide.md)
 
-### When to Think About Code Reuse
+### 何时思考代码复用
 
-- [ ] You're writing similar code to something that exists
-- [ ] You see the same pattern repeated 3+ times
-- [ ] You're adding a new field to multiple places
-- [ ] **You're modifying any constant or config**
-- [ ] **You're creating a new utility/helper function** ← Search first!
+- [ ] 您正在编写与已存在代码类似的代码
+- [ ] 您看到相同模式重复 3+ 次
+- [ ] 您在多个地方添加新字段
+- [ ] **您正在修改任何常量或配置**
+- [ ] **您正在创建新的工具/辅助函数** ← 先搜索！
 
-→ Read [Code Reuse Thinking Guide](./code-reuse-thinking-guide.md)
+→ 阅读[代码复用思维指南](./code-reuse-thinking-guide.md)
 
-### When to Think About Cross-Platform Issues
+### 何时思考跨平台问题
 
-- [ ] Writing scripts that users will run directly
-- [ ] Adding usage examples or help text
-- [ ] Working with file paths or commands
-- [ ] **Migrating from shell scripts to Python**
+- [ ] 编写用户将直接运行的脚本
+- [ ] 添加使用示例或帮助文本
+- [ ] 处理文件路径或命令
+- [ ] **从 shell 脚本迁移到 Python**
 
-→ Read [Cross-Platform Thinking Guide](./cross-platform-thinking-guide.md)
+→ 阅读[跨平台思维指南](./cross-platform-thinking-guide.md)
 
 ---
 
-## Pre-Modification Rule (CRITICAL)
+## 修改前规则（关键）
 
-> **Before changing ANY value, ALWAYS search first!**
+> **在更改任何值之前，始终先搜索！**
 
 ```bash
-# Search for the value you're about to change
+# 搜索您要更改的值
 grep -r "value_to_change" .
 ```
 
-This single habit prevents most "forgot to update X" bugs.
+这一个习惯可以防止大多数"忘记更新 X"的 bug。
 
 ---
 
-## How to Use This Directory
+## 如何使用本目录
 
-1. **Before coding**: Skim the relevant thinking guide
-2. **During coding**: If something feels repetitive or complex, check the guides
-3. **After bugs**: Add new insights to the relevant guide (learn from mistakes)
-
----
-
-## Contributing
-
-Found a new "didn't think of that" moment? Add it to the relevant guide.
+1. **编码前**：浏览相关的思维指南
+2. **编码时**：如果感觉重复或复杂，检查指南
+3. **bug 后**：将新见解添加到相关指南中（从错误中学习）
 
 ---
 
-**Core Principle**: 30 minutes of thinking saves 3 hours of debugging.
+## 贡献
+
+发现新的"没想到"时刻？将其添加到相关指南中。
+
+---
+
+**核心原则**：30 分钟的思考节省 3 小时的调试。

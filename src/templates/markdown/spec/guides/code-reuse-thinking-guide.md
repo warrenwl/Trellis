@@ -1,118 +1,118 @@
-# Code Reuse Thinking Guide
+# 代码复用思维指南
 
-> **Purpose**: Stop and think before creating new code - does it already exist?
-
----
-
-## The Problem
-
-**Duplicated code is the #1 source of inconsistency bugs.**
-
-When you copy-paste or rewrite existing logic:
-- Bug fixes don't propagate
-- Behavior diverges over time
-- Codebase becomes harder to understand
+> **目的**：在创建新代码前停下来思考——它已经存在吗？
 
 ---
 
-## Before Writing New Code
+## 问题
 
-### Step 1: Search First
+**重复代码是不一致 bug 的首要来源。**
+
+当您复制粘贴或重写现有逻辑时：
+- Bug 修复不会传播
+- 行为随时间推移而分化
+- 代码库变得更难理解
+
+---
+
+## 编写新代码之前
+
+### 步骤 1：先搜索
 
 ```bash
-# Search for similar function names
+# 搜索相似的函数名
 grep -r "functionName" .
 
-# Search for similar logic
+# 搜索相似的逻辑
 grep -r "keyword" .
 ```
 
-### Step 2: Ask These Questions
+### 步骤 2：问这些问题
 
-| Question | If Yes... |
+| 问题 | 如果是... |
 |----------|-----------|
-| Does a similar function exist? | Use or extend it |
-| Is this pattern used elsewhere? | Follow the existing pattern |
-| Could this be a shared utility? | Create it in the right place |
-| Am I copying code from another file? | **STOP** - extract to shared |
+| 是否存在类似的函数？ | 使用或扩展它 |
+| 这个模式在其他地方使用吗？ | 遵循现有模式 |
+| 这能否成为共享工具？ | 在正确位置创建它 |
+| 您是从另一个文件复制代码吗？ | **停止** - 提取到共享位置 |
 
 ---
 
-## Common Duplication Patterns
+## 常见重复模式
 
-### Pattern 1: Copy-Paste Functions
+### 模式 1：复制粘贴函数
 
-**Bad**: Copying a validation function to another file
+**不好**：将验证函数复制到另一个文件
 
-**Good**: Extract to shared utilities, import where needed
+**好**：提取到共享工具，需要时导入
 
-### Pattern 2: Similar Components
+### 模式 2：相似的组件
 
-**Bad**: Creating a new component that's 80% similar to existing
+**不好**：创建一个与现有组件 80% 相似的新组件
 
-**Good**: Extend existing component with props/variants
+**好**：用 props/variants 扩展现有组件
 
-### Pattern 3: Repeated Constants
+### 模式 3：重复常量
 
-**Bad**: Defining the same constant in multiple files
+**不好**：在多个文件中定义相同的常量
 
-**Good**: Single source of truth, import everywhere
-
----
-
-## When to Abstract
-
-**Abstract when**:
-- Same code appears 3+ times
-- Logic is complex enough to have bugs
-- Multiple people might need this
-
-**Don't abstract when**:
-- Only used once
-- Trivial one-liner
-- Abstraction would be more complex than duplication
+**好**：单一真相来源，到处导入
 
 ---
 
-## After Batch Modifications
+## 何时抽象
 
-When you've made similar changes to multiple files:
+**应该抽象**：
+- 相同代码出现 3 次或以上
+- 逻辑复杂到可能有 bug
+- 多人可能需要这个
 
-1. **Review**: Did you catch all instances?
-2. **Search**: Run grep to find any missed
-3. **Consider**: Should this be abstracted?
-
----
-
-## Checklist Before Commit
-
-- [ ] Searched for existing similar code
-- [ ] No copy-pasted logic that should be shared
-- [ ] Constants defined in one place
-- [ ] Similar patterns follow same structure
+**不应该抽象**：
+- 仅使用一次
+- 简单的单行代码
+- 抽象比重复更复杂
 
 ---
 
-## Template File Registration (Trellis-specific)
+## 批量修改之后
 
-When adding new files to `src/templates/trellis/scripts/`:
+当您对多个文件进行类似修改后：
 
-**CRITICAL**: New script files must be registered in THREE places:
+1. **审查**：您是否发现了所有实例？
+2. **搜索**：运行 grep 查找是否有遗漏
+3. **考虑**：这是否应该被抽象？
 
-1. **`src/templates/trellis/index.ts`**:
-   - Add `export const xxxScript = readTemplate("scripts/path/file.py");`
-   - Add to `getAllScripts()` Map
+---
 
-2. **`src/commands/update.ts`**:
-   - Add to import statement
-   - Add to `collectTemplateFiles()` Map
+## 提交前的检查清单
 
-**Why this matters**: Without registration, `trellis update` won't sync the file to user projects. Bug fixes and features won't propagate.
+- [ ] 搜索了现有的类似代码
+- [ ] 没有应该共享的复制粘贴逻辑
+- [ ] 常量定义在一个地方
+- [ ] 相似的模式遵循相同的结构
 
-### Quick Checklist for New Scripts
+---
+
+## 模板文件注册（Trellis 特定）
+
+当向 `src/templates/trellis/scripts/` 添加新文件时：
+
+**关键**：新脚本文件必须在**三处**注册：
+
+1. **`src/templates/trellis/index.ts`**：
+   - 添加 `export const xxxScript = readTemplate("scripts/path/file.py");`
+   - 添加到 `getAllScripts()` Map
+
+2. **`src/commands/update.ts`**：
+   - 添加到导入语句
+   - 添加到 `collectTemplateFiles()` Map
+
+**为什么这很重要**：没有注册，`trellis update` 不会将文件同步到用户项目。Bug 修复和新功能不会传播。
+
+### 新脚本快速检查清单
 
 ```bash
-# After adding a new .py file, verify:
-grep -l "newFileName" src/templates/trellis/index.ts  # Should match
-grep -l "newFileName" src/commands/update.ts          # Should match
+# 添加新 .py 文件后，验证：
+grep -l "新文件名" src/templates/trellis/index.ts  # 应该匹配
+grep -l "新文件名" src/commands/update.ts          # 应该匹配
 ```

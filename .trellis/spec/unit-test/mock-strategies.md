@@ -1,41 +1,41 @@
-# Mock Strategies
+# Mock 策略
 
-> Principles and patterns for mocking in tests.
-
----
-
-## Core Principle: Minimal Mocking
-
-Only mock **external dependencies** that are:
-1. Non-deterministic (network, time, random)
-2. Interactive (TTY prompts)
-3. Side-effectful (child processes, file system writes to system paths)
-
-**Never mock internal modules** — let real code execute through the full path.
+> 测试中 mock 的原则和模式。
 
 ---
 
-## Standard Mock Set
+## 核心原则：最小化 Mock
 
-For command-level integration tests, this is the minimal set:
+仅 mock **外部依赖**，且仅当它们是：
+1. 非确定性（网络、时间、随机）
+2. 交互式（TTY 提示）
+3. 有副作用（子进程、写入系统路径的文件系统）
 
-| Dependency | Why Mock | How | Used In |
+**永远不要 mock 内部模块** — 让真实代码执行完整路径。
+
+---
+
+## 标准 Mock 集
+
+对于命令级集成测试，这是最小集合：
+
+| 依赖 | 为什么 Mock | 如何 Mock | 用于 |
 |------------|----------|-----|---------|
-| `figlet` | ASCII banner, not testable output | `vi.mock("figlet")` | init, update |
-| `inquirer` | Interactive prompts, no TTY in CI | `vi.mock("inquirer")` | init, update |
-| `node:child_process` | Git config, Python script calls | `vi.mock("node:child_process")` | init, update |
-| `fetch` (global) | npm registry network call | `vi.stubGlobal("fetch")` | update only |
-| `process.cwd()` | Redirect to temp directory | `vi.spyOn(process, "cwd")` | init, update |
-| `console.log/error` | Silence output | `vi.spyOn(console, "log")` | init, update |
+| `figlet` | ASCII 横幅，不可测试输出 | `vi.mock("figlet")` | init, update |
+| `inquirer` | 交互式提示，CI 中无 TTY | `vi.mock("inquirer")` | init, update |
+| `node:child_process` | Git 配置、Python 脚本调用 | `vi.mock("node:child_process")` | init, update |
+| `fetch` (global) | npm registry 网络调用 | `vi.stubGlobal("fetch")` | update only |
+| `process.cwd()` | 重定向到临时目录 | `vi.spyOn(process, "cwd")` | init, update |
+| `console.log/error` | 静音输出 | `vi.spyOn(console, "log")` | init, update |
 
 ---
 
-## Mock Patterns
+## Mock 模式
 
-### Module Mock (hoisted)
+### 模块 Mock（提升）
 
 ```typescript
-// Placed at top of file — vitest hoists vi.mock calls
+// 放在文件顶部 — vitest 提升 vi.mock 调用
 vi.mock("figlet", () => ({
   default: { textSync: vi.fn(() => "TRELLIS") },
 }));
@@ -52,34 +52,34 @@ vi.mock("node:child_process", () => ({
 ### Global Stub
 
 ```typescript
-// In beforeEach — not hoisted, must be in setup
+// 在 beforeEach 中 — 不提升，必须在 setup 中
 vi.stubGlobal("fetch", vi.fn().mockResolvedValue({
   ok: true,
   json: () => Promise.resolve({ version: VERSION }),
 }));
 
-// In afterEach — MUST restore
+// 在 afterEach 中 — 必须恢复
 vi.unstubAllGlobals();
 ```
 
-### Spy (partial mock)
+### Spy（部分 mock）
 
 ```typescript
-// In beforeEach
+// 在 beforeEach 中
 vi.spyOn(process, "cwd").mockReturnValue(tmpDir);
 vi.spyOn(console, "log").mockImplementation(noop);
 
-// In afterEach
-vi.restoreAllMocks(); // Restores all spies
+// 在 afterEach 中
+vi.restoreAllMocks(); // 恢复所有 spy
 ```
 
 ---
 
-## inquirer Mock: init vs update
+## inquirer Mock：init vs update
 
-The two commands have different inquirer skip conditions:
+两个命令有不同的 inquirer 跳过条件：
 
-**init**: `--yes` flag skips all inquirer prompts. Mock can return empty `{}`.
+**init**：`--yes` 标志跳过所有 inquirer 提示。Mock 可以返回空 `{}`。
 
 ```typescript
 vi.mock("inquirer", () => ({
@@ -87,7 +87,7 @@ vi.mock("inquirer", () => ({
 }));
 ```
 
-**update**: `--dryRun` returns before confirm prompt. All other modes (`force`, `skipAll`, `createNew`) still hit the confirm prompt. Mock must return `{ proceed: true }`.
+**update**：`--dryRun` 在确认提示前返回。所有其他模式（`force`、`skipAll`、`createNew`）仍会进入确认提示。Mock 必须返回 `{ proceed: true }`。
 
 ```typescript
 vi.mock("inquirer", () => ({
@@ -97,39 +97,39 @@ vi.mock("inquirer", () => ({
 
 ---
 
-## Things NOT to Mock
+## 不要 Mock 的东西
 
-| What | Why |
+| 什么 | 为什么 |
 |------|-----|
-| `fs` (node:fs) | Tests run against real temp directories |
-| `path` (node:path) | Pure computation, deterministic |
-| Internal modules (`configurators/`, `utils/`, `templates/`) | Let real code execute |
-| `chalk` | Auto-detects no TTY and disables colors |
+| `fs` (node:fs) | 测试在真实临时目录上运行 |
+| `path` (node:path) | 纯计算，确定性 |
+| 内部模块（`configurators/`、`utils/`、`templates/`）| 让真实代码执行 |
+| `chalk` | 自动检测无 TTY 并禁用颜色 |
 
 ---
 
-## Known Gotchas
+## 已知陷阱
 
-### Module-Level State: `setWriteMode`
+### 模块级状态：`setWriteMode`
 
-`file-writer.ts` has module-level state for write mode. If one test sets `force` mode, subsequent tests inherit it unless reset. The `init()` function calls `setWriteMode()` internally, so integration tests that call `init()` are safe. But direct unit tests of `writeFile` must manage this state explicitly.
+`file-writer.ts` 有模块级状态用于写入模式。如果一个测试设置 `force` 模式，后续测试继承它除非重置。`init()` 函数内部调用 `setWriteMode()`，因此调用 `init()` 的集成测试是安全的。但 `writeFile` 的直接单元测试必须显式管理此状态。
 
-### Template Placeholder Resolution
+### 模板占位符解析
 
-`collectPlatformTemplates()` must return templates with `{{PYTHON_CMD}}` **already resolved** (matching what `configurePlatform()` writes to disk). The `resolvePlaceholders()` function in `configurators/shared.ts` handles this. If a new placeholder is added to templates, it must be resolved in both `configure()` and `collectTemplates()`.
+`collectPlatformTemplates()` 必须返回已解析的 `{{PYTHON_CMD}}` 的模板（与 `configurePlatform()` 写入磁盘的内容匹配）。`configurators/shared.ts` 中的 `resolvePlaceholders()` 函数处理此问题。如果向模板添加新占位符，必须在 `configure()` 和 `collectTemplates()` 中都解析。
 
 ---
 
-## DO / DON'T
+## 做法 / 不做
 
-### DO
+### 做法
 
-- Keep mock count minimal (currently 4 external dependencies)
-- Use `vi.mocked(fn).mockClear()` between tests if asserting call counts
-- Match mock return values to real API shapes
+- 保持 mock 数量最小（目前 4 个外部依赖）
+- 如果断言调用计数，在测试之间使用 `vi.mocked(fn).mockClear()`
+- 将 mock 返回值与真实 API 形状匹配
 
-### DON'T
+### 不做
 
-- Don't mock internal modules to force specific code paths
-- Don't forget `vi.unstubAllGlobals()` when using `vi.stubGlobal`
-- Don't assume mock state resets between tests without explicit `mockClear()` or `restoreAllMocks()`
+- 不要 mock 内部模块以强制特定代码路径
+- 使用 `vi.stubGlobal` 时不要忘记 `vi.unstubAllGlobals()`
+- 不要假设 mock 状态在测试之间重置，无需显式 `mockClear()` 或 `restoreAllMocks()`

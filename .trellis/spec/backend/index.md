@@ -1,41 +1,41 @@
-# Backend Development Guidelines
+# 后端开发指南
 
-> Best practices for backend development in this project.
-
----
-
-## Overview
-
-This directory contains guidelines for backend development. Fill in each file with your project's specific conventions.
+> 本项目后端开发的最佳实践。
 
 ---
 
-## Guidelines Index
+## 概述
 
-| Guide | Description | Status |
+本目录包含后端开发指南。请用您项目的具体约定填写每个文件。
+
+---
+
+## 指南目录
+
+| 指南 | 描述 | 状态 |
 |-------|-------------|--------|
-| [Directory Structure](./directory-structure.md) | Module organization, file layout, design decisions | Done |
-| [Script Conventions](./script-conventions.md) | Python script standards for .trellis/scripts/ | Done |
-| [Error Handling](./error-handling.md) | Error types, handling strategies | Done |
-| [Quality Guidelines](./quality-guidelines.md) | Code standards, forbidden patterns | Done |
-| [Logging Guidelines](./logging-guidelines.md) | Structured logging, log levels | Done |
-| [Migrations](./migrations.md) | Version migration system for template files | Done |
-| [Platform Integration](./platform-integration.md) | How to add support for new AI CLI platforms | Done |
-| [Database Guidelines](./database-guidelines.md) | ORM patterns, queries, migrations | N/A (CLI project) |
+| [目录结构](./directory-structure.md) | 模块组织、文件布局、设计决策 | 已完成 |
+| [脚本约定](./script-conventions.md) | .trellis/scripts/ 的 Python 脚本标准 | 已完成 |
+| [错误处理](./error-handling.md) | 错误类型、处理策略 | 已完成 |
+| [质量指南](./quality-guidelines.md) | 代码标准、禁止模式 | 已完成 |
+| [日志指南](./logging-guidelines.md) | 结构化日志、日志级别 | 已完成 |
+| [迁移](./migrations.md) | 模板文件的版本迁移系统 | 已完成 |
+| [平台集成](./platform-integration.md) | 如何添加新的 AI CLI 平台支持 | 已完成 |
+| [数据库指南](./database-guidelines.md) | ORM 模式、查询、迁移 | 不适用（CLI 项目） |
 
 ---
 
-## How to Fill These Guidelines
+## 如何填写这些指南
 
-For each guideline file:
+对于每个指南文件：
 
-1. Document your project's **actual conventions** (not ideals)
-2. Include **code examples** from your codebase
-3. List **forbidden patterns** and why
-4. Add **common mistakes** your team has made
+1. 记录您项目的**实际约定**（而非理想状态）
+2. 包含来自您代码库的**代码示例**
+3. 列出**禁止的模式**及其原因
+4. 添加您团队**常见的错误**
 
-The goal is to help AI assistants and new team members understand how YOUR project works.
+目标是帮助 AI 助手和新团队成员了解您的项目是如何工作的。
 
 ---
 
-**Language**: All documentation should be written in **English**.
+**语言**：所有文档应使用**中文**编写。

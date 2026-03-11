@@ -1,130 +1,130 @@
-# Cross-Layer Thinking Guide
+# 跨层思维指南
 
-> **Purpose**: Think through data flow across layers before implementing.
-
----
-
-## The Problem
-
-**Most bugs happen at layer boundaries**, not within layers.
-
-Common cross-layer bugs:
-- API returns format A, frontend expects format B
-- Database stores X, service transforms to Y, but loses data
-- Multiple layers implement the same logic differently
+> **目的**：在实现之前思考跨层的数据流。
 
 ---
 
-## Before Implementing Cross-Layer Features
+## 问题
 
-### Step 1: Map the Data Flow
+**大多数 bug 发生在层边界**，而非层内。
 
-Draw out how data moves:
+常见的跨层 bug：
+- API 返回格式 A，前端期望格式 B
+- 数据库存储 X，服务转换为 Y，但丢失数据
+- 多层以不同方式实现相同逻辑
+
+---
+
+## 实现跨层功能之前
+
+### 第 1 步：映射数据流
+
+绘制数据如何移动：
 
 ```
 Source → Transform → Store → Retrieve → Transform → Display
 ```
 
-For each arrow, ask:
-- What format is the data in?
-- What could go wrong?
-- Who is responsible for validation?
+对于每个箭头，问：
+- 数据是什么格式？
+- 可能出什么问题？
+- 谁负责验证？
 
-### Step 2: Identify Boundaries
+### 第 2 步：识别边界
 
-| Boundary | Common Issues |
+| 边界 | 常见问题 |
 |----------|---------------|
-| API ↔ Service | Type mismatches, missing fields |
-| Service ↔ Database | Format conversions, null handling |
-| Backend ↔ Frontend | Serialization, date formats |
-| Component ↔ Component | Props shape changes |
+| API ↔ Service | 类型不匹配、字段缺失 |
+| Service ↔ Database | 格式转换、null 处理 |
+| Backend ↔ Frontend | 序列化、日期格式 |
+| Component ↔ Component | Props 形状变化 |
 
-### Step 3: Define Contracts
+### 第 3 步：定义契约
 
-For each boundary:
-- What is the exact input format?
-- What is the exact output format?
-- What errors can occur?
-
----
-
-## Common Cross-Layer Mistakes
-
-### Mistake 1: Implicit Format Assumptions
-
-**Bad**: Assuming date format without checking
-
-**Good**: Explicit format conversion at boundaries
-
-### Mistake 2: Scattered Validation
-
-**Bad**: Validating the same thing in multiple layers
-
-**Good**: Validate once at the entry point
-
-### Mistake 3: Leaky Abstractions
-
-**Bad**: Component knows about database schema
-
-**Good**: Each layer only knows its neighbors
+对于每个边界：
+- 确切的输入格式是什么？
+- 确切的输出格式是什么？
+- 可能发生什么错误？
 
 ---
 
-## Checklist for Cross-Layer Features
+## 常见跨层错误
 
-Before implementation:
-- [ ] Mapped the complete data flow
-- [ ] Identified all layer boundaries
-- [ ] Defined format at each boundary
-- [ ] Decided where validation happens
+### 错误 1：隐式格式假设
 
-After implementation:
-- [ ] Tested with edge cases (null, empty, invalid)
-- [ ] Verified error handling at each boundary
-- [ ] Checked data survives round-trip
+**不好**：不检查就假设日期格式
 
----
+**好**：在边界处显式格式转换
 
-## Cross-Platform Template Consistency
+### 错误 2：分散的验证
 
-In Trellis, command templates (e.g., `record-session.md`) exist in **multiple platforms** with identical or near-identical content. This is a cross-layer boundary.
+**不好**：在多层验证相同的东西
 
-### Checklist: After Modifying Any Command Template
+**好**：在入口点验证一次
 
-- [ ] Find all platforms with the same command: `find src/templates/*/commands/trellis/ -name "<command>.*"`
-- [ ] Update all platform copies (Markdown `.md` and TOML `.toml`)
-- [ ] For Gemini TOML: adapt line continuations (`\\` vs `\`) and triple-quoted strings
-- [ ] Run `/trellis:check-cross-layer` to verify nothing was missed
+### 错误 3：泄漏的抽象
 
-**Real-world example**: Updated `record-session.md` in Claude to use `--mode record`, but forgot iFlow, Kilo, OpenCode, and Gemini — caught by cross-layer check.
+**不好**：组件知道数据库 schema
+
+**好**：每层只知道它的邻居
 
 ---
 
-## Mode-Detection Probe Checklist
+## 跨层功能检查清单
 
-When a CLI auto-detects a mode by probing a remote resource (e.g., checking if `index.json` exists to decide marketplace vs direct download):
+实现之前：
+- [ ] 映射了完整数据流
+- [ ] 识别了所有层边界
+- [ ] 定义了每个边界的格式
+- [ ] 决定了验证发生在哪里
 
-### Before implementing:
-- [ ] Probe runs in **ALL** code paths that use the result (interactive, `-y`, `--flag` combos)
-- [ ] 404 vs transient error are distinguished — don't treat both as "not found"
-- [ ] Transient errors **abort or retry**, never silently switch modes
-- [ ] Shared state (caches, prefetched data) is **reset** when context changes (e.g., user switches source)
-- [ ] **Shortcut paths** (e.g., `--template` skipping picker) must have the same error-handling quality as the probed path — check that downstream functions don't call catch-all wrappers
-
-### After implementing:
-- [ ] Trace every path from probe result to the mode-decision branch — no fallthrough
-- [ ] External format contracts (giget URI, raw URLs) are tested or at least documented as comments
-- [ ] When reconstructing a composite identifier from parsed parts, verify **all** fields are included and in the **correct position** (e.g., `provider:repo/path#ref` not `provider:repo#ref/path`)
-- [ ] Verify that **action functions** called after a shortcut don't internally use the old catch-all fetch — they must use the probe-quality variant when error distinction matters
-
-**Real-world example**: Custom registry flow had 8 bugs across 3 review rounds: (1) probe only ran in interactive mode, (2) transient errors fell through to wrong mode, (3) giget URI had `#ref` in wrong position, (4) prefetched templates leaked across source switches, (5) `--template` shortcut bypassed probe but `downloadTemplateById` internally used catch-all `fetchTemplateIndex`, turning timeouts into "Template not found".
+实现之后：
+- [ ] 用边缘情况测试（null、空、无效）
+- [ ] 验证了每个边界的错误处理
+- [ ] 检查数据是否 survive 往返
 
 ---
 
-## When to Create Flow Documentation
+## 跨平台模板一致性
 
-Create detailed flow docs when:
-- Feature spans 3+ layers
-- Multiple teams are involved
-- Data format is complex
-- Feature has caused bugs before
+在 Trellis 中，命令模板（例如 `record-session.md`）存在于**多个平台**且内容相同或几乎相同。这是一个跨层边界。
+
+### 修改任何命令模板后的检查清单
+
+- [ ] 找到具有相同命令的所有平台：`find src/templates/*/commands/trellis/ -name "<command>.*"`
+- [ ] 更新所有平台副本（Markdown `.md` 和 TOML `.toml`）
+- [ ] 对于 Gemini TOML：适应行连续（`\\` vs `\`）和三引号字符串
+- [ ] 运行 `/trellis:check-cross-layer` 验证没有遗漏
+
+**实际例子**：在 Claude 中更新 `record-session.md` 使用 `--mode record`，但忘记了 iFlow、Kilo、OpenCode 和 Gemini — 被跨层检查捕获。
+
+---
+
+## 模式检测探测检查清单
+
+当 CLI 通过探测远程资源自动检测模式时（例如，检查 `index.json` 是否存在以决定 marketplace vs 直接下载）：
+
+### 实现之前：
+- [ ] 探测在**所有**使用结果的代码路径中运行（交互式、`-y`、标志组合）
+- [ ] 区分 404 vs 临时错误 — 不要将两者都视为"未找到"
+- [ ] 临时错误**中止或重试**，永远不要静默切换模式
+- [ ] 当上下文改变时**重置**共享状态（缓存、预取数据）（例如，用户切换来源）
+- [ ] **快捷路径**（例如，`--template` 跳过选择器）必须具有与探测路径相同的错误处理质量 — 检查下游函数是否调用全覆盖包装器
+
+### 实现之后：
+- [ ] 跟踪从探测结果到模式决策分支的每条路径 — 无穿透
+- [ ] 外部格式契约（giget URI、原始 URL）已测试或至少在注释中记录
+- [ ] 当从解析部分重建复合标识符时，验证**所有**字段都包含且在**正确位置**（例如，`provider:repo/path#ref` 而非 `provider:repo#ref/path`）
+- [ ] 验证快捷方式后调用的**操作函数**内部不使用旧的全覆盖获取 — 当错误区分重要时，它们必须使用探测质量变体
+
+**实际例子**：自定义 registry 流程在 3 轮审查中有 8 个 bug：（1）探测仅在交互模式运行，（2）临时错误进入错误模式，（3）giget URI 中 `#ref` 位置错误，（4）预取的模板跨来源切换泄漏，（5）`--template` 快捷方式绕过探测但 `downloadTemplateById` 内部使用全覆盖 `fetchTemplateIndex`，将超时变成"模板未找到"。
+
+---
+
+## 何时创建流程文档
+
+在以下情况下创建详细流程文档：
+- 功能跨越 3+ 层
+- 涉及多个团队
+- 数据格式复杂
+- 功能以前导致过 bug

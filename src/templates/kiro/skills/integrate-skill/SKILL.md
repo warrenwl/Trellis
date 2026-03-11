@@ -1,196 +1,196 @@
 ---
 name: integrate-skill
-description: "Integrate Skill into Project Guidelines"
+description: "将技能集成到项目指南中"
 ---
 
-# Integrate Skill into Project Guidelines
+# 将技能集成到项目指南中
 
-Adapt and integrate a reusable skill into your project's development guidelines (not directly into project code).
+将可重用的技能适配并集成到项目的开发指南中（不直接集成到项目代码中）。
 
-## Usage
+## 使用方法
 
 ```
 $integrate-skill <skill-name>
 ```
 
-**Examples**:
+**示例**：
 ```
 $integrate-skill frontend-design
 $integrate-skill mcp-builder
 ```
 
-## Core Principle
+## 核心原则
 
-> [!] **Important**: The goal of skill integration is to update **development guidelines**, not to generate project code directly.
+> [!] **重要**：技能集成的目标是更新**开发指南**，而不是直接生成项目代码。
 >
-> - Guidelines content -> Write to `.trellis/spec/{target}/doc.md`
-> - Code examples -> Place in `.trellis/spec/{target}/examples/skills/<skill-name>/`
-> - Example files -> Use `.template` suffix (e.g., `component.tsx.template`) to avoid IDE errors
+> - 指南内容 -> 写入 `.trellis/spec/{target}/doc.md`
+> - 代码示例 -> 放在 `.trellis/spec/{target}/examples/skills/<skill-name>/`
+> - 示例文件 -> 使用 `.template` 后缀（例如 `component.tsx.template`）以避免 IDE 错误
 >
-> Where `{target}` is `frontend` or `backend`, determined by skill type.
+> 其中 `{target}` 是 `frontend` 或 `backend`，由技能类型决定。
 
-## Execution Steps
+## 执行步骤
 
-### 1. Read Skill Content
+### 1. 阅读技能内容
 
-Locate and read the skill instructions:
-- `.kiro/skills/<skill-name>/SKILL.md` in the repository
-- Skill list in `AGENTS.md` (when available in current context)
+找到并阅读技能说明：
+- 仓库中的 `.kiro/skills/<skill-name>/SKILL.md`
+- 当前上下文中的技能列表（在 `AGENTS.md` 中有时可用）
 
-If the skill cannot be found, ask the user for the source path or repository.
+如果找不到技能，请询问用户源路径或仓库。
 
-### 2. Determine Integration Target
+### 2. 确定集成目标
 
-Based on skill type, determine which guidelines to update:
+根据技能类型，确定要更新的指南：
 
-| Skill Category | Integration Target |
+| 技能类别 | 集成目标 |
 |----------------|-------------------|
-| UI/Frontend (`frontend-design`, `web-artifacts-builder`) | `.trellis/spec/frontend/` |
-| Backend/API (`mcp-builder`) | `.trellis/spec/backend/` |
-| Documentation (`doc-coauthoring`, `docx`, `pdf`) | `.trellis/` or create dedicated guidelines |
-| Testing (`webapp-testing`) | `.trellis/spec/frontend/` (E2E) |
+| UI/前端 (`frontend-design`, `web-artifacts-builder`) | `.trellis/spec/frontend/` |
+| 后端/API (`mcp-builder`) | `.trellis/spec/backend/` |
+| 文档 (`doc-coauthoring`, `docx`, `pdf`) | `.trellis/` 或创建专用指南 |
+| 测试 (`webapp-testing`) | `.trellis/spec/frontend/` (E2E) |
 
-### 3. Analyze Skill Content
+### 3. 分析技能内容
 
-Extract from the skill:
-- **Core concepts**: How the skill works and key concepts
-- **Best practices**: Recommended approaches
-- **Code patterns**: Reusable code templates
-- **Caveats**: Common issues and solutions
+从技能中提取：
+- **核心概念**：技能如何运作和关键概念
+- **最佳实践**：推荐的方法
+- **代码模式**：可重用的代码模板
+- **注意事项**：常见问题和解决方案
 
-### 4. Execute Integration
+### 4. 执行集成
 
-#### 4.1 Update Guidelines Document
+#### 4.1 更新指南文档
 
-Add a new section to the corresponding `doc.md`:
+在相应的 `doc.md` 中添加新部分：
 
 ```markdown
 @@@section:skill-<skill-name>
-## # <Skill Name> Integration Guide
+## # <技能名称> 集成指南
 
-### Overview
-[Core functionality and use cases of the skill]
+### 概述
+[技能的核心功能和用例]
 
-### Project Adaptation
-[How to use this skill in the current project]
+### 项目适配
+[如何在当前项目中使用此技能]
 
-### Usage Steps
-1. [Step 1]
-2. [Step 2]
+### 使用步骤
+1. [步骤 1]
+2. [步骤 2]
 
-### Caveats
-- [Project-specific constraints]
-- [Differences from default behavior]
+### 注意事项
+- [项目特定的约束]
+- [与默认行为的差异]
 
-### Reference Examples
-See `examples/skills/<skill-name>/`
+### 参考示例
+参见 `examples/skills/<skill-name>/`
 
 @@@/section:skill-<skill-name>
 ```
 
-#### 4.2 Create Examples Directory (if code examples exist)
+#### 4.2 创建示例目录（如果存在代码示例）
 
 ```bash
-# Directory structure ({target} = frontend or backend)
+# 目录结构（{target} = frontend 或 backend）
 .trellis/spec/{target}/
-|-- doc.md                      # Add skill-related section
-|-- index.md                    # Update index
+|-- doc.md                      # 添加技能相关部分
+|-- index.md                    # 更新索引
 +-- examples/
     +-- skills/
         +-- <skill-name>/
-            |-- README.md               # Example documentation
-            |-- example-1.ts.template   # Code example (use .template suffix)
+            |-- README.md               # 示例文档
+            |-- example-1.ts.template   # 代码示例（使用 .template 后缀）
             +-- example-2.tsx.template
 ```
 
-**File naming conventions**:
-- Code files: `<name>.<ext>.template` (e.g., `component.tsx.template`)
-- Config files: `<name>.config.template` (e.g., `tailwind.config.template`)
-- Documentation: `README.md` (normal suffix)
+**文件命名约定**：
+- 代码文件：`<name>.<ext>.template`（例如 `component.tsx.template`）
+- 配置文件：`<name>.config.template`（例如 `tailwind.config.template`）
+- 文档：`README.md`（正常后缀）
 
-#### 4.3 Update Index File
+#### 4.3 更新索引文件
 
-Add to the Quick Navigation table in `index.md`:
+在 `index.md` 的快速导航表中添加：
 
 ```markdown
-| <Skill-related task> | <Section name> | `skill-<skill-name>` |
+| <技能相关任务> | <部分名称> | `skill-<skill-name>` |
 ```
 
-### 5. Generate Integration Report
+### 5. 生成集成报告
 
 ---
 
-## Skill Integration Report: `<skill-name>`
+## 技能集成报告：`<skill-name>`
 
-### # Overview
-- **Skill description**: [Functionality description]
-- **Integration target**: `.trellis/spec/{target}/`
+### # 概述
+- **技能描述**：[功能描述]
+- **集成目标**：`.trellis/spec/{target}/`
 
-### # Tech Stack Compatibility
+### # 技术栈兼容性
 
-| Skill Requirement | Project Status | Compatibility |
+| 技能要求 | 项目状态 | 兼容性 |
 |-------------------|----------------|---------------|
-| [Tech 1] | [Project tech] | [OK]/[!]/[X] |
+| [技术 1] | [项目技术] | [OK]/[!]/[X] |
 
-### # Integration Locations
+### # 集成位置
 
-| Type | Path |
+| 类型 | 路径 |
 |------|------|
-| Guidelines doc | `.trellis/spec/{target}/doc.md` (section: `skill-<name>`) |
-| Code examples | `.trellis/spec/{target}/examples/skills/<name>/` |
-| Index update | `.trellis/spec/{target}/index.md` |
+| 指南文档 | `.trellis/spec/{target}/doc.md`（部分：`skill-<name>`） |
+| 代码示例 | `.trellis/spec/{target}/examples/skills/<name>/` |
+| 索引更新 | `.trellis/spec/{target}/index.md` |
 
-> `{target}` = `frontend` or `backend`
+> `{target}` = `frontend` 或 `backend`
 
-### # Dependencies (if needed)
+### # 依赖项（如果需要）
 
 ```bash
-# Install required dependencies (adjust for your package manager)
+# 安装所需的依赖项（根据您的包管理器调整）
 npm install <package>
-# or
+# 或
 pnpm add <package>
-# or
+# 或
 yarn add <package>
 ```
 
-### [OK] Completed Changes
+### [OK] 已完成的更改
 
-- [ ] Added `@@@section:skill-<name>` section to `doc.md`
-- [ ] Added index entry to `index.md`
-- [ ] Created example files in `examples/skills/<name>/`
-- [ ] Example files use `.template` suffix
+- [ ] 在 `doc.md` 中添加了 `@@@section:skill-<name>` 部分
+- [ ] 在 `index.md` 中添加了索引条目
+- [ ] 在 `examples/skills/<name>/` 中创建了示例文件
+- [ ] 示例文件使用 `.template` 后缀
 
-### # Related Guidelines
+### # 相关指南
 
-- [Existing related section IDs]
+- [现有相关部分 ID]
 
 ---
 
-## 6. Optional: Create Usage Skill
+## 6. 可选：创建使用技能
 
-If this skill is frequently used, create a shortcut skill:
+如果此技能频繁使用，创建快捷技能：
 
 ```bash
-$create-command use-<skill-name> Use <skill-name> skill following project guidelines
+$create-command use-<skill-name> 按照项目指南使用 <skill-name> 技能
 ```
 
-## Common Skill Integration Reference
+## 常见技能集成参考
 
-| Skill | Integration Target | Examples Directory |
+| 技能 | 集成目标 | 示例目录 |
 |-------|-------------------|-------------------|
 | `frontend-design` | `frontend` | `examples/skills/frontend-design/` |
 | `mcp-builder` | `backend` | `examples/skills/mcp-builder/` |
 | `webapp-testing` | `frontend` | `examples/skills/webapp-testing/` |
-| `doc-coauthoring` | `.trellis/` | N/A (documentation workflow only) |
+| `doc-coauthoring` | `.trellis/` | N/A（仅文档工作流） |
 
-## Example: Integrating `mcp-builder` Skill
+## 示例：集成 `mcp-builder` 技能
 
-### Directory Structure
+### 目录结构
 
 ```
 .trellis/spec/backend/
-|-- doc.md                           # Add MCP section
-|-- index.md                         # Add index entry
+|-- doc.md                           # 添加 MCP 部分
+|-- index.md                         # 添加索引条目
 +-- examples/
     +-- skills/
         +-- mcp-builder/
@@ -200,22 +200,22 @@ $create-command use-<skill-name> Use <skill-name> skill following project guidel
             +-- types.ts.template
 ```
 
-### New Section in doc.md
+### doc.md 中的新部分
 
 ```markdown
 @@@section:skill-mcp-builder
-## # MCP Server Development Guide
+## # MCP Server 开发指南
 
-### Overview
-Create LLM-callable tool services using MCP (Model Context Protocol).
+### 概述
+使用 MCP（模型上下文协议）创建 LLM 可调用的工具服务。
 
-### Project Adaptation
-- Place services in a dedicated directory
-- Follow existing TypeScript and type definition conventions
-- Use project's logging system
+### 项目适配
+- 将服务放在专用目录中
+- 遵循现有的 TypeScript 和类型定义约定
+- 使用项目的日志系统
 
-### Reference Examples
-See `examples/skills/mcp-builder/`
+### 参考示例
+参见 `examples/skills/mcp-builder/`
 
 @@@/section:skill-mcp-builder
 ```

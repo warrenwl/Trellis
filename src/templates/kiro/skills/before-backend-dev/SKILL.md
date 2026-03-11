@@ -1,18 +1,20 @@
 ---
 name: before-backend-dev
-description: "Read the backend development guidelines before starting your development task."
+description: "在开始开发任务之前，请先阅读后端开发指南。"
 ---
 
-Read the backend development guidelines before starting your development task.
+# 后端开发准备
 
-Execute these steps:
-1. Read `.trellis/spec/backend/index.md` to understand available guidelines
-2. Based on your task, read the relevant guideline files:
-   - Database work → `.trellis/spec/backend/database-guidelines.md`
-   - Error handling → `.trellis/spec/backend/error-handling.md`
-   - Logging → `.trellis/spec/backend/logging-guidelines.md`
-   - Type questions → `.trellis/spec/backend/type-safety.md`
-3. Understand the coding standards and patterns you need to follow
-4. Then proceed with your development plan
+在开始开发任务之前，请先阅读后端开发指南。
 
-This step is **mandatory** before writing any backend code.
+请执行以下步骤：
+1. 阅读 `.trellis/spec/backend/index.md` 以了解可用的指南
+2. 根据您的任务，阅读相关的指南文件：
+   - 数据库工作 → `.trellis/spec/backend/database-guidelines.md`
+   - 错误处理 → `.trellis/spec/backend/error-handling.md`
+   - 日志记录 → `.trellis/spec/backend/logging-guidelines.md`
+   - 类型问题 → `.trellis/spec/backend/type-safety.md`
+3. 了解您需要遵循的编码标准和模式
+4. 然后继续执行您的开发计划
+
+在编写任何后端代码之前，这一步是**必需的**。

@@ -1,115 +1,115 @@
-# Code Reuse Thinking Guide
+# 代码复用思维指南
 
-> **Purpose**: Stop and think before creating new code - does it already exist?
-
----
-
-## The Problem
-
-**Duplicated code is the #1 source of inconsistency bugs.**
-
-When you copy-paste or rewrite existing logic:
-- Bug fixes don't propagate
-- Behavior diverges over time
-- Codebase becomes harder to understand
+> **目的**：在创建新代码之前停下来思考——它已经存在了吗？
 
 ---
 
-## Before Writing New Code
+## 问题
 
-### Step 1: Search First
+**重复代码是 #1 不一致 bug 来源。**
+
+当您复制粘贴或重写现有逻辑时：
+- Bug 修复不会传播
+- 行为随时间推移而分歧
+- 代码库变得更难理解
+
+---
+
+## 编写新代码之前
+
+### 第 1 步：先搜索
 
 ```bash
-# Search for similar function names
+# 搜索相似的函数名
 grep -r "functionName" .
 
-# Search for similar logic
+# 搜索相似的逻辑
 grep -r "keyword" .
 ```
 
-### Step 2: Ask These Questions
+### 第 2 步：问这些问题
 
-| Question | If Yes... |
+| 问题 | 如果是... |
 |----------|-----------|
-| Does a similar function exist? | Use or extend it |
-| Is this pattern used elsewhere? | Follow the existing pattern |
-| Could this be a shared utility? | Create it in the right place |
-| Am I copying code from another file? | **STOP** - extract to shared |
+| 类似的函数存在吗？ | 使用或扩展它 |
+| 这个模式在其他地方使用吗？ | 遵循现有模式 |
+| 这可以成为共享工具吗？ | 在正确位置创建它 |
+| 您是从另一个文件复制代码吗？ | **停止** - 提取到共享位置 |
 
 ---
 
-## Common Duplication Patterns
+## 常见重复模式
 
-### Pattern 1: Copy-Paste Functions
+### 模式 1：复制粘贴函数
 
-**Bad**: Copying a validation function to another file
+**不好**：将验证函数复制到另一个文件
 
-**Good**: Extract to shared utilities, import where needed
+**好**：提取到共享工具，在需要的地方导入
 
-### Pattern 2: Similar Components
+### 模式 2：相似组件
 
-**Bad**: Creating a new component that's 80% similar to existing
+**不好**：创建一个与现有组件 80% 相似的新组件
 
-**Good**: Extend existing component with props/variants
+**好**：用 props/变体扩展现有组件
 
-### Pattern 3: Repeated Constants
+### 模式 3：重复常量
 
-**Bad**: Defining the same constant in multiple files
+**不好**：在多个文件中定义相同的常量
 
-**Good**: Single source of truth, import everywhere
-
----
-
-## When to Abstract
-
-**Abstract when**:
-- Same code appears 3+ times
-- Logic is complex enough to have bugs
-- Multiple people might need this
-
-**Don't abstract when**:
-- Only used once
-- Trivial one-liner
-- Abstraction would be more complex than duplication
+**好**：单一真实来源，到处导入
 
 ---
 
-## After Batch Modifications
+## 何时抽象
 
-When you've made similar changes to multiple files:
+**抽象当**：
+- 相同代码出现 3+ 次
+- 逻辑复杂到可能有 bug
+- 多人可能需要这个
 
-1. **Review**: Did you catch all instances?
-2. **Search**: Run grep to find any missed
-3. **Consider**: Should this be abstracted?
-
----
-
-## Checklist Before Commit
-
-- [ ] Searched for existing similar code
-- [ ] No copy-pasted logic that should be shared
-- [ ] Constants defined in one place
-- [ ] Similar patterns follow same structure
+**不要抽象当**：
+- 仅使用一次
+- 简单的单行代码
+- 抽象比重复更复杂
 
 ---
 
-## Gotcha: Python if/elif/else Exhaustive Check
+## 批量修改之后
 
-**Problem**: Python's if/elif/else chains have no compile-time exhaustive check. When you add a new value to a `Literal` type (e.g., `Platform`), existing if/elif/else chains silently fall through to `else` with wrong defaults.
+当您对多个文件进行类似更改时：
 
-**Symptom**: New platform works partially — some methods return Claude defaults instead of platform-specific values. No error is raised.
+1. **审查**：您是否捕获了所有实例？
+2. **搜索**：运行 grep 找到任何遗漏
+3. **考虑**：这应该被抽象吗？
 
-**Example** (`cli_adapter.py`):
+---
+
+## 提交前的检查清单
+
+- [ ] 搜索了现有类似代码
+- [ ] 没有应该共享的复制粘贴逻辑
+- [ ] 常量定义在一个地方
+- [ ] 相似模式遵循相同结构
+
+---
+
+## 陷阱：Python if/elif/else 穷尽检查
+
+**问题**：Python 的 if/elif/else 链没有编译时穷尽检查。当您向 `Literal` 类型（例如 `Platform`）添加新值时，现有的 if/elif/else 链静默进入 `else` 分支并使用错误的默认值。
+
+**症状**：新平台部分工作——某些方法返回 Claude 默认值而非平台特定值。没有错误引发。
+
+**示例**（`cli_adapter.py`）：
 ```python
-# BAD: "gemini" falls through to else, returns "claude"
+# 不好："gemini" 进入 else，返回 "claude"
 @property
 def cli_name(self) -> str:
     if self.platform == "opencode":
         return "opencode"
     else:
-        return "claude"  # gemini silently gets "claude"!
+        return "claude"  # gemini 静默获得 "claude"！
 
-# GOOD: explicit branch for every platform
+# 好：每个平台显式分支
 @property
 def cli_name(self) -> str:
     if self.platform == "opencode":
@@ -120,45 +120,45 @@ def cli_name(self) -> str:
         return "claude"
 ```
 
-**Prevention**: When adding a new value to a Python `Literal` type, search for ALL if/elif/else chains that switch on that type and add explicit branches. Don't rely on `else` being correct for new values.
+**预防**：当向 Python `Literal` 类型添加新值时，搜索所有切换该类型的 if/elif/else 链并添加显式分支。不要依赖 `else` 对新值是正确的。
 
 ---
 
-## Gotcha: Asymmetric Mechanisms Producing Same Output
+## 陷阱：产生相同输出的不对称机制
 
-**Problem**: When two different mechanisms must produce the same file set (e.g., recursive directory copy for init vs. manual `files.set()` for update), structural changes (renaming, moving, adding subdirectories) only propagate through the automatic mechanism. The manual one silently drifts.
+**问题**：当两种不同机制必须产生相同的文件集时（例如，init 的递归目录复制 vs 更新的手动 `files.set()`），结构更改（重命名、移动、添加子目录）仅通过自动机制传播。手动机制静默漂移。
 
-**Symptom**: Init works perfectly, but update creates files at wrong paths or misses files entirely.
+**症状**：init 完美工作，但 update 在错误路径创建文件或完全遗漏文件。
 
-**Prevention checklist**:
-- [ ] When migrating directory structures, search for ALL code paths that reference the old structure
-- [ ] If one path is auto-derived (glob/copy) and another is manually listed, the manual one needs updating
-- [ ] Add a regression test that compares outputs from both mechanisms
+**预防检查清单**：
+- [ ] 迁移目录结构时，搜索引用旧结构的所有代码路径
+- [ ] 如果一个路径是自动派生（glob/copy）而另一个是手动列出，手动的需要更新
+- [ ] 添加比较两种机制输出的回归测试
 
-**See also**: `backend/platform-integration.md` → "collectTemplates path drift" for a concrete example.
+**另见**：`backend/platform-integration.md` → "collectTemplates 路径漂移" 的具体示例。
 
 ---
 
-## Template File Registration (Trellis-specific)
+## 模板文件注册（Trellis 特定）
 
-When adding new files to `src/templates/trellis/scripts/`:
+当向 `src/templates/trellis/scripts/` 添加新文件时：
 
-**CRITICAL**: New script files must be registered in THREE places:
+**关键**：新脚本文件必须在**三处**注册：
 
-1. **`src/templates/trellis/index.ts`**:
-   - Add `export const xxxScript = readTemplate("scripts/path/file.py");`
-   - Add to `getAllScripts()` Map
+1. **`src/templates/trellis/index.ts`**：
+   - 添加 `export const xxxScript = readTemplate("scripts/path/file.py");`
+   - 添加到 `getAllScripts()` Map
 
-2. **`src/commands/update.ts`**:
-   - Add to import statement
-   - Add to `collectTemplateFiles()` Map
+2. **`src/commands/update.ts`**：
+   - 添加到导入语句
+   - 添加到 `collectTemplateFiles()` Map
 
-**Why this matters**: Without registration, `trellis update` won't sync the file to user projects. Bug fixes and features won't propagate.
+**为什么重要**：没有注册，`trellis update` 不会将文件同步到用户项目。Bug 修复和新功能不会传播。
 
-### Quick Checklist for New Scripts
+### 新脚本的快速检查清单
 
 ```bash
-# After adding a new .py file, verify:
-grep -l "newFileName" src/templates/trellis/index.ts  # Should match
-grep -l "newFileName" src/commands/update.ts          # Should match
+# 添加新 .py 文件后，验证：
+grep -l "newFileName" src/templates/trellis/index.ts  # 应该匹配
+grep -l "newFileName" src/commands/update.ts          # 应该匹配
 ```

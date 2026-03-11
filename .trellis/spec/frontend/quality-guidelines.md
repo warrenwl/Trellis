@@ -1,51 +1,49 @@
-# Quality Guidelines
+# 质量指南
 
-> Code quality standards for frontend development.
-
----
-
-## Overview
-
-<!--
-Document your project's quality standards here.
-
-Questions to answer:
-- What patterns are forbidden?
-- What linting rules do you enforce?
-- What are your testing requirements?
-- What code review standards apply?
--->
-
-(To be filled by the team)
+> 前端开发的代码质量标准。
 
 ---
 
-## Forbidden Patterns
+## 概述
 
-<!-- Patterns that should never be used and why -->
+（由团队填写）
 
-(To be filled by the team)
+记录您项目的质量标准。
 
----
-
-## Required Patterns
-
-<!-- Patterns that must always be used -->
-
-(To be filled by the team)
+需要回答的问题：
+- 什么模式被禁止？
+- 强制执行什么 linting 规则？
+- 什么测试要求适用？
+- 什么代码审查标准适用？
 
 ---
 
-## Testing Requirements
+## 禁止的模式
 
-<!-- What level of testing is expected -->
+（由团队填写）
 
-(To be filled by the team)
+永远不应该使用的模式及其原因
 
 ---
 
-## Code Review Checklist
+## 必需的模式
 
-<!-- What reviewers should check -->
+（由团队填写）
 
-(To be filled by the team)
+必须始终使用的模式
+
+---
+
+## 测试要求
+
+（由团队填写）
+
+期望的测试级别
+
+---
+
+## 代码审查清单
+
+（由团队填写）
+
+审查者应该检查什么

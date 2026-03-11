@@ -1,20 +1,20 @@
-# Quality Guidelines
+# 质量指南
 
-> Code quality standards for backend/CLI development.
-
----
-
-## Overview
-
-This project enforces strict TypeScript and ESLint rules to maintain code quality. The configuration prioritizes type safety, explicit declarations, and modern JavaScript patterns.
+> 后端/CLI 开发的代码质量标准。
 
 ---
 
-## TypeScript Configuration
+## 概述
 
-### Strict Mode
+本项目强制执行严格的 TypeScript 和 ESLint 规则以保持代码质量。配置优先考虑类型安全、显式声明和现代 JavaScript 模式。
 
-The project uses `strict: true` in `tsconfig.json`:
+---
+
+## TypeScript 配置
+
+### 严格模式
+
+项目在 `tsconfig.json` 中使用 `strict: true`：
 
 ```json
 {
@@ -27,35 +27,35 @@ The project uses `strict: true` in `tsconfig.json`:
 }
 ```
 
-This enables:
-- `strictNullChecks` - Null and undefined must be explicitly handled
-- `strictFunctionTypes` - Function parameter types are checked strictly
-- `strictPropertyInitialization` - Class properties must be initialized
-- `noImplicitAny` - All types must be explicit
-- `noImplicitThis` - `this` must have explicit type
+启用以下功能：
+- `strictNullChecks` - 必须显式处理 null 和 undefined
+- `strictFunctionTypes` - 严格检查函数参数类型
+- `strictPropertyInitialization` - 类属性必须初始化
+- `noImplicitAny` - 所有类型必须显式
+- `noImplicitThis` - `this` 必须有显式类型
 
 ---
 
-## ESLint Rules
+## ESLint 规则
 
-### Forbidden Patterns
+### 禁止的模式
 
-| Rule | Setting | Reason |
+| 规则 | 设置 | 原因 |
 |------|---------|--------|
-| `@typescript-eslint/no-explicit-any` | `error` | Forces proper typing |
-| `@typescript-eslint/no-non-null-assertion` | `error` | Prevents runtime null errors |
-| `no-var` | `error` | Use `const` or `let` instead |
+| `@typescript-eslint/no-explicit-any` | `error` | 强制正确类型化 |
+| `@typescript-eslint/no-non-null-assertion` | `error` | 防止运行时空错误 |
+| `no-var` | `error` | 使用 `const` 或 `let` |
 
-### Required Patterns
+### 必需的模式
 
-| Rule | Setting | Description |
+| 规则 | 设置 | 描述 |
 |------|---------|-------------|
-| `@typescript-eslint/explicit-function-return-type` | `error` | All functions must declare return type |
-| `@typescript-eslint/prefer-nullish-coalescing` | `error` | Use `??` instead of `\|\|` for defaults |
-| `@typescript-eslint/prefer-optional-chain` | `error` | Use `?.` for optional access |
-| `prefer-const` | `error` | Use `const` when variable is not reassigned |
+| `@typescript-eslint/explicit-function-return-type` | `error` | 所有函数必须声明返回类型 |
+| `@typescript-eslint/prefer-nullish-coalescing` | `error` | 默认值使用 `??` 而非 `\|\|` |
+| `@typescript-eslint/prefer-optional-chain` | `error` | 可选访问使用 `?.` |
+| `prefer-const` | `error` | 变量不重新赋值时使用 `const` |
 
-### Exceptions
+### 异常
 
 ```javascript
 // eslint.config.js
@@ -63,15 +63,15 @@ rules: {
   "@typescript-eslint/explicit-function-return-type": [
     "error",
     {
-      allowExpressions: true,          // Arrow functions in callbacks OK
-      allowTypedFunctionExpressions: true,  // Typed function expressions OK
+      allowExpressions: true,          // 回调中的箭头函数可以
+      allowTypedFunctionExpressions: true,  // 类型化函数表达式可以
     },
   ],
   "@typescript-eslint/no-unused-vars": [
     "error",
     {
-      argsIgnorePattern: "^_",   // Prefix unused params with _
-      varsIgnorePattern: "^_",   // Prefix unused vars with _
+      argsIgnorePattern: "^_",   // 未使用的参数前缀加 _
+      varsIgnorePattern: "^_",   // 未使用的变量前缀加 _
     },
   ],
 }
@@ -79,14 +79,14 @@ rules: {
 
 ---
 
-## Code Patterns
+## 代码模式
 
-### Return Type Declarations
+### 返回类型声明
 
-All functions must have explicit return types:
+所有函数必须有显式返回类型：
 
 ```typescript
-// Good: Explicit return type
+// 好：显式返回类型
 function detectProjectType(cwd: string): ProjectType {
   // ...
 }
@@ -95,69 +95,69 @@ async function init(options: InitOptions): Promise<void> {
   // ...
 }
 
-// Bad: Missing return type (ESLint error)
+// 不好：缺少返回类型（ESLint 错误）
 function detectProjectType(cwd: string) {
   // ...
 }
 ```
 
-### Nullish Coalescing
+### 空值合并
 
-Use `??` for default values, not `||`:
+默认值使用 `??`，而非 `||`：
 
 ```typescript
-// Good: Nullish coalescing
+// 好：空值合并
 const name = options.name ?? "default";
 const allDeps = { ...pkg.dependencies, ...pkg.devDependencies };
 const depNames = Object.keys(allDeps ?? {});
 
-// Bad: Logical OR (treats empty string, 0 as falsy)
+// 不好：逻辑或（将空字符串、0 视为 falsy）
 const name = options.name || "default";
 ```
 
-### Optional Chaining
+### 可选链
 
-Use `?.` for optional property access:
+可选属性访问使用 `?.`：
 
 ```typescript
-// Good: Optional chaining
+// 好：可选链
 const version = config?.version;
 const deps = pkg?.dependencies?.["react"];
 
-// Bad: Manual checks
+// 不好：手动检查
 const version = config && config.version;
 ```
 
-### Const Declarations
+### Const 声明
 
-Use `const` by default, `let` only when reassignment is needed:
+默认使用 `let`，仅在需要重新赋值时使用 `let`：
 
 ```typescript
-// Good: const for non-reassigned
+// 好：const 用于不重新赋值
 const cwd = process.cwd();
 const options: InitOptions = { force: true };
 
-// Good: let for reassigned
+// 好：let 用于重新赋值
 let developerName = options.user;
 if (!developerName) {
   developerName = detectFromGit();
 }
 
-// Bad: let for non-reassigned
-let cwd = process.cwd();  // ESLint error: prefer-const
+// 不好：let 用于不重新赋值
+let cwd = process.cwd();  // ESLint 错误：prefer-const
 ```
 
-### Unused Variables
+### 未使用的变量
 
-Prefix unused parameters with underscore:
+未使用的参数加下划线前缀：
 
 ```typescript
-// Good: Prefixed with underscore
+// 好：加下划线前缀
 function handler(_req: Request, res: Response): void {
   res.send("OK");
 }
 
-// Bad: Unused without prefix (ESLint error)
+// 不好：未使用且无前缀（ESLint 错误）
 function handler(req: Request, res: Response): void {
   res.send("OK");
 }
@@ -165,14 +165,14 @@ function handler(req: Request, res: Response): void {
 
 ---
 
-## Interface and Type Patterns
+## 接口和类型模式
 
-### Interface Definitions
+### 接口定义
 
-Define interfaces for structured data:
+为结构化数据定义接口：
 
 ```typescript
-// Good: Interface for options
+// 好：选项的接口
 interface InitOptions {
   cursor?: boolean;
   claude?: boolean;
@@ -181,39 +181,39 @@ interface InitOptions {
   force?: boolean;
 }
 
-// Good: Interface for return types
+// 好：返回类型的接口
 interface WriteOptions {
   mode: WriteMode;
 }
 ```
 
-### Type Aliases
+### 类型别名
 
-Use type aliases for unions and computed types:
+联合和计算类型使用类型别名：
 
 ```typescript
-// Good: Type alias for union
+// 好：联合的类型别名
 export type AITool = "claude-code" | "cursor" | "opencode";
 export type WriteMode = "ask" | "force" | "skip" | "append";
 export type ProjectType = "frontend" | "backend" | "fullstack" | "unknown";
 
-// Good: Type alias with const assertion
+// 好：带 const 断言的类型别名
 export const DIR_NAMES = {
   WORKFLOW: ".trellis",
   PROGRESS: "agent-traces",
 } as const;
 ```
 
-### Export Patterns
+### 导出模式
 
-Export types explicitly:
+显式导出类型：
 
 ```typescript
-// Good: Explicit type export
+// 好：显式类型导出
 export type { WriteMode, WriteOptions };
 export { writeFile, ensureDir };
 
-// Good: Combined export
+// 好：组合导出
 export type WriteMode = "ask" | "force" | "skip" | "append";
 export function writeFile(path: string, content: string): Promise<boolean> {
   // ...
@@ -222,235 +222,235 @@ export function writeFile(path: string, content: string): Promise<boolean> {
 
 ---
 
-## Forbidden Patterns
+## 禁止的模式
 
-### Never Use `any`
+### 永远不要使用 `any`
 
 ```typescript
-// Bad: Explicit any
+// 不好：显式 any
 function process(data: any): void { }
 
-// Good: Proper typing
+// 好：正确类型化
 function process(data: Record<string, unknown>): void { }
 function process<T>(data: T): void { }
 ```
 
-### Never Use Non-Null Assertion
+### 永远不要使用非空断言
 
 ```typescript
-// Bad: Non-null assertion
+// 不好：非空断言
 const name = user!.name;
 
-// Good: Proper null check
+// 好：正确的空检查
 const name = user?.name ?? "default";
 if (user) {
   const name = user.name;
 }
 ```
 
-### Never Use `var`
+### 永远不要使用 `var`
 
 ```typescript
-// Bad: var declaration
+// 不好：var 声明
 var count = 0;
 
-// Good: const or let
+// 好：const 或 let
 const count = 0;
 let mutableCount = 0;
 ```
 
 ---
 
-## Quality Checklist
+## 质量检查清单
 
-Before committing, ensure:
+提交前，确保：
 
-- [ ] `pnpm lint` passes with no errors
-- [ ] `pnpm typecheck` passes with no errors
-- [ ] All functions have explicit return types
-- [ ] No `any` types in code
-- [ ] No non-null assertions (`x!` operator)
-- [ ] Using `??` instead of `||` for defaults
-- [ ] Using `?.` for optional property access
-- [ ] Using `const` by default, `let` only when needed
-- [ ] Unused variables prefixed with `_`
+- [ ] `pnpm lint` 通过且无错误
+- [ ] `pnpm typecheck` 通过且无错误
+- [ ] 所有函数都有显式返回类型
+- [ ] 代码中无 `any` 类型
+- [ ] 无非空断言（`x!` 操作符）
+- [ ] 默认值使用 `??` 而非 `||`
+- [ ] 可选属性访问使用 `?.`
+- [ ] 默认使用 `const`，仅在需要时使用 `let`
+- [ ] 未使用的变量前缀加 `_`
 
 ---
 
-## Running Quality Checks
+## 运行质量检查
 
 ```bash
-# Run ESLint
+# 运行 ESLint
 pnpm lint
 
-# Run TypeScript type checking
+# 运行 TypeScript 类型检查
 pnpm typecheck
 
-# Run both
+# 运行两者
 pnpm lint && pnpm typecheck
 ```
 
 ---
 
-## CLI Design Patterns
+## CLI 设计模式
 
-### Explicit Flags Take Precedence
+### 显式标志优先
 
-When a CLI has both explicit flags (`--tool`) and convenience flags (`-y`), explicit flags must always win:
+当 CLI 同时有显式标志（`--tool`）和便捷标志（`-y`）时，显式标志必须始终获胜：
 
 ```typescript
-// Bad: -y overrides explicit flags
+// 不好：-y 覆盖显式标志
 if (options.yes) {
-  tools = ["cursor", "claude"]; // Ignores --iflow, --opencode!
+  tools = ["cursor", "claude"]; // 忽略 --iflow, --opencode!
 } else if (options.cursor || options.iflow) {
-  // Build from flags...
+  // 从标志构建...
 }
 
-// Good: Check explicit flags first
+// 好：首先检查显式标志
 const hasExplicitTools = options.cursor || options.iflow || options.opencode;
 if (hasExplicitTools) {
-  // Build from explicit flags (works with or without -y)
+  // 从显式标志构建（带或不带 -y 都可以工作）
 } else if (options.yes) {
-  // Default only when no explicit flags
+  // 仅在无显式标志时使用默认值
 }
 ```
 
-**Why**: Users specify explicit flags intentionally. The `-y` flag means "skip interactive prompts", not "ignore my other flags".
+**原因**：用户是有意指定显式标志的。`-y` 标志意味着"跳过交互式提示"，而不是"忽略我的其他标志"。
 
-### Data-Driven Configuration
+### 数据驱动配置
 
-When handling multiple similar options, use arrays with metadata instead of repeated if-else:
+处理多个类似选项时，使用带元数据的数组而非重复的 if-else：
 
 ```typescript
-// Bad: Repetitive if-else
+// 不好：重复的 if-else
 if (options.cursor) tools.push("cursor");
 if (options.claude) tools.push("claude");
 if (options.iflow) tools.push("iflow");
-// ... repeated logic, easy to miss one
+// ... 重复逻辑，容易遗漏一个
 
-// Good: Data-driven approach
+// 好：数据驱动方式
 const TOOLS = [
   { key: "cursor", name: "Cursor", defaultChecked: true },
   { key: "claude", name: "Claude Code", defaultChecked: true },
   { key: "iflow", name: "iFlow CLI", defaultChecked: false },
 ] as const;
 
-// Single source of truth for:
-// - Building from flags: TOOLS.filter(t => options[t.key])
-// - Interactive choices: TOOLS.map(t => ({ name: t.name, value: t.key }))
-// - Default values: TOOLS.filter(t => t.defaultChecked)
+// 单一真实来源用于：
+// - 从标志构建：TOOLS.filter(t => options[t.key])
+// - 交互式选择：TOOLS.map(t => ({ name: t.name, value: t.key }))
+// - 默认值：TOOLS.filter(t => t.defaultChecked)
 ```
 
-**Benefits**:
-- Adding a new tool = adding one line to TOOLS array
-- Display name, flag key, and default are co-located
-- Less code duplication, fewer bugs
+**好处**：
+- 添加新工具 = 向 TOOLS 数组添加一行
+- 显示名称、标志键和默认值放在一起
+- 代码重复更少，bug 更少
 
-### Auto-Detect Modes Must Probe in ALL Code Paths
+### 自动检测模式必须在所有代码路径中探测
 
-When a CLI auto-detects mode (e.g., marketplace vs direct download) by probing a resource, the probe must run in **every** code path that uses the result — including `-y` (non-interactive) mode:
+当 CLI 自动检测模式（例如，市场 vs 直接下载）通过探测资源时，探测必须在使用结果的**每个**代码路径中运行 - 包括 `-y`（非交互）模式：
 
 ```typescript
-// Bad: Probe only runs in interactive mode
+// 不好：探测仅在交互模式运行
 let templates: Item[] = [];
 if (!options.yes) {
-  templates = await fetchIndex(url); // Only interactive probes
+  templates = await fetchIndex(url); // 仅交互式探测
 }
-// -y mode: templates stays [], falls through to direct mode
-// Bug: marketplace registries silently downloaded as raw directory
+// -y 模式：templates 保持 []，直接进入直接模式
+// Bug：市场注册表作为原始目录被静默下载
 
-// Good: Probe in all paths that need the result
+// 好：在需要结果的所有路径中探测
 if (options.template) {
-  selectedTemplate = options.template; // Explicit: no probe needed
+  selectedTemplate = options.template; // 显式：无需探测
 } else if (!options.yes) {
-  // Interactive: probe + show picker
+  // 交互：探测 + 显示选择器
   const result = await probeIndex(url);
   // ...
 } else if (registry) {
-  // -y mode with registry: still need to probe
+  // 带注册表的 -y 模式：仍需要探测
   const result = await probeIndex(url);
   if (result.templates.length > 0) {
-    // Marketplace requires selection — can't auto-select in -y mode
+    // 市场需要选择 — -y 模式无法自动选择
     console.error("Use --template to specify which template");
     return;
   }
 }
 ```
 
-**Why**: The `-y` flag means "skip interactive prompts", not "skip network operations". If a mode decision depends on a remote resource, the probe must happen regardless of interactivity.
+**原因**：`-y` 标志意味着"跳过交互式提示"，而不是"跳过网络操作"。如果模式决策依赖于远程资源，无论是否交互都必须进行探测。
 
-### Don't Drop Fields When Reconstructing Composite Identifiers
+### 重建复合标识符时不要丢弃字段
 
-When a structured object is parsed into parts and later reassembled, include **all** parsed fields:
+当解析结构化对象为其组成部分然后重新组装时，包含**所有**解析的字段：
 
 ```typescript
-// Bad: ref is parsed but dropped when rebuilding
+// 不好：ref 被解析但重建时被丢弃
 const registry = parseSource("gh:org/repo/path#develop");
 // registry = { provider: "gh", repo: "org/repo", ref: "develop", ... }
 const repoSource = `${registry.provider}:${registry.repo}`;
-// Result: "gh:org/repo" — ref "develop" is lost, defaults to "main"
+// 结果："gh:org/repo" — ref "develop" 丢失，默认为 "main"
 
-// Good: Include all relevant fields
+// 好：包含所有相关字段
 const repoSource = `${registry.provider}:${registry.repo}#${registry.ref}`;
-// Result: "gh:org/repo#develop"
+// 结果："gh:org/repo#develop"
 ```
 
-**Prevention**: When building a string from a parsed object, review the object's fields and verify each one is either included or explicitly irrelevant.
+**预防**：从解析对象构建字符串时，审查对象的字段并验证每个字段要么被包含，要么明确不相关。
 
-### Don't: "Warn and Continue" for Mode-Detection Logic
+### 不要：对模式检测逻辑"警告并继续"
 
-When code decides which mode to run based on a probe result, a warning + continue is functionally equivalent to no fix at all:
+当代码根据探测结果决定运行哪种模式时，警告 + 继续在功能上等同于没有修复：
 
 ```typescript
-// Bad: Warning prints but code still falls through to wrong mode
+// 不好：警告打印但代码仍进入错误模式
 if (!probeResult.isNotFound) {
   console.log(chalk.yellow("Warning: network issue, attempting direct download"));
 }
-// Falls through → downloads marketplace root as spec directory
+// 继续 → 将市场根目录下载为 spec 目录
 
-// Good: Abort or loop back — never silently switch modes
+// 好：中止或循环 — 永远不要静默切换模式
 if (!probeResult.isNotFound) {
   console.log(chalk.red("Could not reach registry. Check connection and retry."));
-  return; // or: continue (loop back to picker)
+  return; // 或：continue（循环回选择器）
 }
 ```
 
-**Why**: "Warn and continue" is appropriate for **degraded functionality** (missing optional data). It is **not** appropriate for **mode decisions** — the wrong mode causes data corruption, not just degraded UX.
+**原因**："警告并继续"适用于**降级功能**（缺少可选数据）。它不适用于**模式决策** — 错误的模式导致数据损坏，而不仅仅是降级的用户体验。
 
-### Convention: Reset Shared State on Branch Switch
+### 约定：切换分支时重置共享状态
 
-When user input or control flow changes context (e.g., switching from official marketplace to a custom source), reset any shared state that was populated by the previous context:
+当用户输入或控制流改变上下文时（例如，从官方市场切换到自定义源），重置由前一个上下文填充的任何共享状态：
 
 ```typescript
-// Bad: fetchedTemplates still has official marketplace results
+// 不好：fetchedTemplates 仍有官方市场结果
 registry = parseRegistrySource(customSource);
-// fetchedTemplates.length > 0 → direct-download guard never fires!
+// fetchedTemplates.length > 0 → 直接下载守卫永不触发！
 
-// Good: Reset before entering new context
+// 好：在进入新上下文前重置
 registry = parseRegistrySource(customSource);
-fetchedTemplates = []; // Clear stale data from previous source
+fetchedTemplates = []; // 清除先前来源的陈旧数据
 ```
 
-**Why**: Shared mutable state across branches is a silent bug factory. The later guard (`registry && fetchedTemplates.length === 0`) depends on `fetchedTemplates` reflecting the *current* source, not a previous one.
+**原因**：跨分支的共享可变状态是静默的 bug 工厂。后面的守卫（`registry && fetchedTemplates.length === 0`）取决于 `fetchedTemplates` 反映的是*当前*来源，而不是之前的来源。
 
 ---
 
-## DO / DON'T
+## 做法 / 不做
 
-### DO
+### 做法
 
-- Declare explicit return types on all functions
-- Use `const` by default
-- Use `??` for default values
-- Use `?.` for optional access
-- Define interfaces for structured data
-- Prefix unused parameters with `_`
+- 在所有函数上声明显式返回类型
+- 默认使用 `const`
+- 默认值使用 `??`
+- 可选访问使用 `?.`
+- 为结构化数据定义接口
+- 未使用的参数前缀加 `_`
 
-### DON'T
+### 不做
 
-- Don't use `any` type
-- Don't use non-null assertion (`x!` operator)
-- Don't use `var`
-- Don't use `||` for default values (use `??`)
-- Don't leave implicit return types
-- Don't ignore ESLint or TypeScript errors
+- 不要使用 `any` 类型
+- 不要使用非空断言（`x!` 操作符）
+- 不要使用 `var`
+- 不要使用 `||` 作为默认值（使用 `??`）
+- 不要留下隐式返回类型
+- 不要忽略 ESLint 或 TypeScript 错误

@@ -1,70 +1,70 @@
-# Script Conventions
+# 脚本规范
 
-> Standards for Python scripts in the `.trellis/scripts/` directory.
-
----
-
-## Overview
-
-All workflow scripts are written in **Python 3.10+** for cross-platform compatibility. Scripts use only the standard library (no external dependencies).
+> `.trellis/scripts/` 目录中 Python 脚本的标准。
 
 ---
 
-## Directory Structure
+## 概述
+
+所有工作流脚本均使用 **Python 3.10+** 编写，以确保跨平台兼容性。脚本仅使用标准库（无外部依赖）。
+
+---
+
+## 目录结构
 
 ```
 .trellis/scripts/
-├── __init__.py           # Package init
-├── common/               # Shared modules
+├── __init__.py           # 包初始化
+├── common/               # 共享模块
 │   ├── __init__.py
-│   ├── paths.py          # Path constants and functions
-│   ├── developer.py      # Developer identity management
-│   ├── task_queue.py     # Task queue CRUD
-│   ├── task_utils.py     # Task helper functions
-│   ├── phase.py          # Multi-agent phase tracking
-│   ├── registry.py       # Agent registry management
-│   ├── config.py         # Config reader (config.yaml, hooks)
-│   ├── worktree.py       # Git worktree utilities + YAML parser
-│   └── git_context.py    # Git/session context
-├── hooks/                # Lifecycle hook scripts (project-specific)
-│   └── linear_sync.py    # Example: sync tasks to Linear
-├── multi_agent/          # Multi-agent pipeline scripts
+│   ├── paths.py          # 路径常量和函数
+│   ├── developer.py      # 开发者身份管理
+│   ├── task_queue.py     # 任务队列 CRUD
+│   ├── task_utils.py     # 任务辅助函数
+│   ├── phase.py          # 多代理阶段追踪
+│   ├── registry.py       # 代理注册表管理
+│   ├── config.py         # 配置读取器（config.yaml、hooks）
+│   ├── worktree.py       # Git worktree 工具 + YAML 解析器
+│   └── git_context.py    # Git/会话上下文
+├── hooks/                # 生命周期钩子脚本（项目特定）
+│   └── linear_sync.py    # 示例：将任务同步到 Linear
+├── multi_agent/          # 多代理流水线脚本
 │   ├── __init__.py
-│   ├── start.py          # Start worktree agent
-│   ├── status.py         # Monitor agent status
-│   ├── plan.py           # Start plan agent
-│   ├── cleanup.py        # Cleanup worktree
-│   └── create_pr.py      # Create PR from task
-├── task.py               # Main task management CLI
-├── get_context.py        # Session context retrieval
-├── init_developer.py     # Developer initialization
-├── get_developer.py      # Get current developer
-├── add_session.py        # Session recording
-└── create_bootstrap.py   # Bootstrap task creation
+│   ├── start.py          # 启动 worktree 代理
+│   ├── status.py         # 监控代理状态
+│   ├── plan.py           # 启动计划代理
+│   ├── cleanup.py        # 清理 worktree
+│   └── create_pr.py      # 从任务创建 PR
+├── task.py               # 主要任务管理 CLI
+├── get_context.py        # 会话上下文检索
+├── init_developer.py     # 开发者初始化
+├── get_developer.py      # 获取当前开发者
+├── add_session.py        # 会话记录
+└── create_bootstrap.py   # Bootstrap 任务创建
 ```
 
 ---
 
-## Script Types
+## 脚本类型
 
-### Library Modules (`common/*.py`)
+### 库模块（`common/*.py`）
 
-Shared utilities imported by other scripts. **Never run directly.**
+由其他脚本导入的共享工具。**请勿直接运行。**
 
 ```python
-# common/paths.py - Example library module
+# common/paths.py - 示例库模块
 
 from __future__ import annotations
 
 from pathlib import Path
 
-# Constants
+# 常量
 DIR_WORKFLOW = ".trellis"
 DIR_SCRIPTS = "scripts"
 DIR_TASKS = "tasks"
 
 def get_repo_root() -> Path | None:
-    """Find repository root by looking for .trellis directory."""
+    """通过查找 .trellis 目录来找到仓库根目录。"""
     current = Path.cwd().resolve()
     while current != current.parent:
         if (current / DIR_WORKFLOW).is_dir():
@@ -73,16 +73,16 @@ def get_repo_root() -> Path | None:
     return None
 ```
 
-### Entry Scripts (`*.py`)
+### 入口脚本（`*.py`）
 
-CLI tools that users run directly. Include docstring with usage.
+用户直接运行的 CLI 工具。包含使用说明的文档字符串。
 
 ```python
 #!/usr/bin/env python3
 """
-Task Management Script.
+任务管理脚本。
 
-Usage:
+用法：
     python3 task.py create "<title>" [--slug <name>]
     python3 task.py init-context <dir> <dev_type>
     python3 task.py add-context <dir> <file> <reason>
@@ -109,11 +109,11 @@ from common.paths import get_repo_root, DIR_WORKFLOW
 
 
 def main() -> int:
-    """Main entry point."""
-    parser = argparse.ArgumentParser(description="Task management")
-    # ... argument setup
+    """主入口点。"""
+    parser = argparse.ArgumentParser(description="任务管理")
+    # ... 参数设置
     args = parser.parse_args()
-    # ... command dispatch
+    # ... 命令分发
     return 0
 
 
@@ -123,32 +123,32 @@ if __name__ == "__main__":
 
 ---
 
-## Coding Standards
+## 编码标准
 
-### Type Hints
+### 类型提示
 
-Use modern type hints (Python 3.10+ syntax):
+使用现代类型提示（Python 3.10+ 语法）：
 
 ```python
-# Good
+# 好
 def get_tasks(status: str | None = None) -> list[dict]:
     ...
 
 def read_json(path: Path) -> dict | None:
     ...
 
-# Bad - old style
+# 不好 - 旧式
 from typing import Optional, List, Dict
 def get_tasks(status: Optional[str] = None) -> List[Dict]:
     ...
 ```
 
-### Path Handling
+### 路径处理
 
-Always use `pathlib.Path`:
+始终使用 `pathlib.Path`：
 
 ```python
-# Good
+# 好
 from pathlib import Path
 
 def read_file(path: Path) -> str:
@@ -156,13 +156,13 @@ def read_file(path: Path) -> str:
 
 config_path = repo_root / DIR_WORKFLOW / "config.json"
 
-# Bad - string concatenation
+# 不好 - 字符串拼接
 config_path = repo_root + "/" + DIR_WORKFLOW + "/config.json"
 ```
 
-### JSON Operations
+### JSON 操作
 
-Use helper functions for consistent error handling:
+使用辅助函数以保持一致的错误处理：
 
 ```python
 import json
@@ -170,7 +170,7 @@ from pathlib import Path
 
 
 def read_json(path: Path) -> dict | None:
-    """Read JSON file, return None on error."""
+    """读取 JSON 文件，错误时返回 None。"""
     try:
         return json.loads(path.read_text(encoding="utf-8"))
     except (FileNotFoundError, json.JSONDecodeError):
@@ -178,7 +178,7 @@ def read_json(path: Path) -> dict | None:
 
 
 def write_json(path: Path, data: dict) -> bool:
-    """Write JSON file, return success status."""
+    """写入 JSON 文件，返回成功状态。"""
     try:
         path.write_text(
             json.dumps(data, indent=2, ensure_ascii=False),
@@ -189,7 +189,7 @@ def write_json(path: Path, data: dict) -> bool:
         return False
 ```
 
-### Subprocess Execution
+### 子进程执行
 
 ```python
 import subprocess
@@ -200,7 +200,7 @@ def run_command(
     cmd: list[str],
     cwd: Path | None = None
 ) -> tuple[int, str, str]:
-    """Run command and return (returncode, stdout, stderr)."""
+    """运行命令并返回（返回码、stdout、stderr）。"""
     result = subprocess.run(
         cmd,
         cwd=cwd,
@@ -212,47 +212,47 @@ def run_command(
 
 ---
 
-## Cross-Platform Compatibility
+## 跨平台兼容性
 
-### CRITICAL: Windows stdio Encoding (stdout + stdin)
+### 关键：Windows stdio 编码（stdout + stdin）
 
-On Windows, Python's stdout AND stdin default to the system code page (e.g., GBK/CP936 in China, CP1252 in Western locales). This causes:
-- `UnicodeEncodeError` when **printing** non-ASCII characters (stdout)
-- `UnicodeDecodeError` when **reading piped** UTF-8 content (stdin), e.g. Chinese text via `cat << EOF | python3 script.py`
+在 Windows 上，Python 的 stdout 和 stdin 默认为系统代码页（例如中国为 GBK/CP936，西方为 CP1252）。这会导致：
+- 打印非 ASCII 字符时发生 `UnicodeEncodeError`（stdout）
+- 读取管道输入的 UTF-8 内容时发生 `UnicodeDecodeError`（stdin），例如通过 `cat << EOF | python3 script.py` 输入的中文文本
 
-**The Problem Chain (stdout)**:
+**问题链（stdout）**：
 
 ```
-Windows code page = GBK (936)
+Windows 代码页 = GBK (936)
     ↓
-Python stdout defaults to GBK encoding
+Python stdout 默认为 GBK 编码
     ↓
-Subprocess output contains special chars → replaced with \ufffd (replacement char)
+子进程输出包含特殊字符 → 替换为 \ufffd（替换字符）
     ↓
 json.dumps(ensure_ascii=False) → print()
     ↓
-GBK cannot encode \ufffd → UnicodeEncodeError: 'gbk' codec can't encode character
+GBK 无法编码 \ufffd → UnicodeEncodeError: 'gbk' codec can't encode character
 ```
 
-**The Problem Chain (stdin)**:
+**问题链（stdin）**：
 
 ```
-AI agent pipes UTF-8 content via heredoc: cat << 'EOF' | python3 add_session.py ...
+AI 代理通过 heredoc 管道传输 UTF-8 内容：cat << 'EOF' | python3 add_session.py ...
     ↓
-Python stdin defaults to GBK encoding (PowerShell default code page)
+Python stdin 默认为 GBK 编码（PowerShell 默认代码页）
     ↓
-sys.stdin.read() decodes bytes as GBK, not UTF-8
+sys.stdin.read() 将字节解码为 GBK，而非 UTF-8
     ↓
-Chinese text garbled or UnicodeDecodeError
+中文文本乱码或 UnicodeDecodeError
 ```
 
-**Root Cause**: Even if you set `PYTHONIOENCODING` in subprocess calls, the **parent process's stdio** still uses the system code page.
+**根本原因**：即使在子进程调用中设置 `PYTHONIOENCODING`，**父进程的 stdio** 仍然使用系统代码页。
 
 ---
 
-#### GOOD: Centralize encoding fix in `common/__init__.py`
+#### 好：在 `common/__init__.py` 中集中修复编码
 
-All stdio encoding is handled in one place. Scripts that `from common import ...` automatically get the fix:
+所有 stdio 编码在一处处理。`from common import ...` 的脚本自动获得修复：
 
 ```python
 # common/__init__.py
@@ -260,7 +260,7 @@ import io
 import sys
 
 def _configure_stream(stream):
-    """Configure a stream for UTF-8 encoding on Windows."""
+    """在 Windows 上配置流为 UTF-8 编码。"""
     if hasattr(stream, "reconfigure"):
         stream.reconfigure(encoding="utf-8", errors="replace")
         return stream
@@ -271,93 +271,93 @@ def _configure_stream(stream):
 if sys.platform == "win32":
     sys.stdout = _configure_stream(sys.stdout)
     sys.stderr = _configure_stream(sys.stderr)
-    sys.stdin = _configure_stream(sys.stdin)    # Don't forget stdin!
+    sys.stdin = _configure_stream(sys.stdin)    # 别忘了 stdin！
 ```
 
 ---
 
-#### DON'T: Inline encoding code in individual scripts
+#### 不好：在单个脚本中内联编码代码
 
 ```python
-# BAD - Duplicated in every script, easy to forget stdin
+# 不好 - 在每个脚本中重复，容易忘记 stdin
 import sys
 if sys.platform == "win32":
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
-    # Forgot stdin! Piped Chinese text will break.
+    # 忘记了 stdin！管道传输的中文文本会出错。
 ```
 
-**Why this is bad**:
-1. **Easy to forget streams**: stdout was fixed but stdin was missed in multiple scripts, causing real user bugs
-2. **Duplicated code**: Same logic copy-pasted across `add_session.py`, `git_context.py`, etc.
-3. **Inconsistent coverage**: Some scripts fix stdout only, others fix stdout+stderr, none fixed stdin
+**为什么这样不好**：
+1. **容易忘记流**：stdout 修复了但 stdin 在多个脚本中被忽略，导致实际用户 bug
+2. **代码重复**：相同逻辑在 `add_session.py`、`git_context.py` 等之间复制粘贴
+3. **覆盖不一致**：有些脚本只修复 stdout，有些修复 stdout+stderr，没有一个修复 stdin
 
-**Real-world failure**: Users on Windows reported garbled Chinese text when using `cat << EOF | python3 add_session.py`. Root cause: stdin was never reconfigured to UTF-8.
+**实际故障**：Windows 用户报告使用 `cat << EOF | python3 add_session.py` 时中文文本乱码。原因：stdin 从未重新配置为 UTF-8。
 
 ---
 
-#### Summary
+#### 总结
 
-| Method | Works? | Reason |
+| 方法 | 可用？ | 原因 |
 |--------|--------|--------|
-| `common/__init__.py` centralized fix | ✅ Yes | All streams, all scripts, one place |
-| `sys.stdout.reconfigure(encoding="utf-8")` | ⚠️ Partial | Only stdout; easy to forget stdin/stderr |
-| `io.TextIOWrapper(sys.stdout.buffer, ...)` | ❌ No | Creates wrapper, doesn't fix underlying encoding |
-| `PYTHONIOENCODING=utf-8` env var | ⚠️ Partial | Only works if set **before** Python starts |
+| `common/__init__.py` 集中修复 | ✅ 是 | 所有流，所有脚本，一处 |
+| `sys.stdout.reconfigure(encoding="utf-8")` | ⚠️ 部分 | 仅 stdout；容易忘记 stdin/stderr |
+| `io.TextIOWrapper(sys.stdout.buffer, ...)` | ❌ 否 | 创建包装器，不修复底层编码 |
+| `PYTHONIOENCODING=utf-8` 环境变量 | ⚠️ 部分 | 仅在 Python 启动**前**设置才有效 |
 
-### CRITICAL: Always Use `python3` Explicitly
+### 关键：始终明确使用 `python3`
 
-Windows does not support shebang (`#!/usr/bin/env python3`). Always document invocation with explicit `python3`:
+Windows 不支持 shebang（`#!/usr/bin/env python3`）。始终使用明确的 `python3` 记录调用：
 
 ```python
-# In docstrings
+# 在文档字符串中
 """
-Usage:
+用法：
     python3 task.py create "My Task"
     python3 task.py list --mine
 """
 
-# In error messages
-print("Usage: python3 task.py <command>")
-print("Run: python3 ./.trellis/scripts/init_developer.py <name>")
+# 在错误消息中
+print("用法: python3 task.py <command>")
+print("运行: python3 ./.trellis/scripts/init_developer.py <name>")
 
-# In help text
-print("Next steps:")
+# 在帮助文本中
+print("下一步：")
 print("  python3 task.py start <dir>")
 ```
 
-### Path Separators
+### 路径分隔符
 
-Use `pathlib.Path` - it handles separators automatically:
+使用 `pathlib.Path` - 它自动处理分隔符：
 
 ```python
-# Good - works on all platforms
+# 好 - 在所有平台上都能工作
 path = Path(".trellis") / "scripts" / "task.py"
 
-# Bad - Unix-only
+# 不好 - 仅 Unix
 path = ".trellis/scripts/task.py"
 ```
 
 ---
 
-## Task Lifecycle Hooks
+## 任务生命周期钩子
 
-### Scope / Trigger
+### 范围 / 触发器
 
-Task lifecycle events (`after_create`, `after_start`, `after_finish`, `after_archive`) execute user-defined shell commands configured in `config.yaml`.
+任务生命周期事件（`after_create`、`after_start`、`after_finish`、`after_archive`）执行在 `config.yaml` 中配置的用户定义的 shell 命令。
 
-### Signatures
+### 签名
 
 ```python
-# config.py — read hook commands from config
+# config.py — 从配置中读取钩子命令
 def get_hooks(event: str, repo_root: Path | None = None) -> list[str]
 
-# task.py — execute hooks (never blocks main operation)
+# task.py — 执行钩子（从不阻塞主操作）
 def _run_hooks(event: str, task_json_path: Path, repo_root: Path) -> None
 ```
 
-### Contracts
+### 约定
 
-**Config format** (`config.yaml`):
+**配置格式**（`config.yaml`）：
 ```yaml
 hooks:
   after_create:
@@ -368,16 +368,16 @@ hooks:
     - "python3 .trellis/scripts/hooks/my_hook.py archive"
 ```
 
-**Environment variables passed to hooks**:
+**传递给钩子的环境变量**：
 
-| Key | Type | Description |
+| 键 | 类型 | 描述 |
 |-----|------|-------------|
-| `TASK_JSON_PATH` | Absolute path string | Path to the task's `task.json` |
+| `TASK_JSON_PATH` | 绝对路径字符串 | 任务的 `task.json` 路径 |
 
-- `cwd` is set to `repo_root`
-- Hooks inherit the parent process environment + `TASK_JSON_PATH`
+- `cwd` 设置为 `repo_root`
+- 钩子继承父进程环境 + `TASK_JSON_PATH`
 
-### Subprocess Execution
+### 子进程执行
 
 ```python
 import os
@@ -392,148 +392,148 @@ result = subprocess.run(
     env=env,
     capture_output=True,
     text=True,
-    encoding="utf-8",    # REQUIRED: cross-platform
-    errors="replace",    # REQUIRED: cross-platform
+    encoding="utf-8",    # 必需：跨平台
+    errors="replace",    # 必需：跨平台
 )
 ```
 
-### Validation & Error Matrix
+### 验证和错误矩阵
 
-| Condition | Behavior |
-|-----------|----------|
-| No `hooks` key in config | No-op (empty list) |
-| `hooks` is not a dict | No-op (empty list) |
-| Event key missing | No-op (empty list) |
-| Hook command exits non-zero | `[WARN]` to stderr, continues to next hook |
-| Hook command throws exception | `[WARN]` to stderr, continues to next hook |
-| `linearis` not installed | Hook fails with warning, task operation succeeds |
+| 条件 | 行为 |
+|--------|----------|
+| 配置中没有 `hooks` 键 | 无操作（空列表）|
+| `hooks` 不是字典 | 无操作（空列表）|
+| 事件键缺失 | 无操作（空列表）|
+| 钩子命令退出非零 | `[WARN]` 到 stderr，继续执行下一个钩子 |
+| 钩子命令抛出异常 | `[WARN]` 到 stderr，继续执行下一个钩子 |
+| `linearis` 未安装 | 钩子失败并警告，任务操作成功 |
 
-### Wrong vs Correct
+### 错误与正确
 
-#### Wrong — blocking on hook failure
+#### 错误 — 钩子失败时阻塞
 ```python
-result = subprocess.run(cmd, shell=True, check=True)  # Raises on failure!
+result = subprocess.run(cmd, shell=True, check=True)  # 失败时抛出异常！
 ```
 
-#### Correct — warn and continue
+#### 正确 — 警告并继续
 ```python
 try:
     result = subprocess.run(cmd, shell=True, ...)
     if result.returncode != 0:
-        print(f"[WARN] Hook failed: {cmd}", file=sys.stderr)
+        print(f"[WARN] 钩子失败: {cmd}", file=sys.stderr)
 except Exception as e:
-    print(f"[WARN] Hook error: {cmd} — {e}", file=sys.stderr)
+    print(f"[WARN] 钩子错误: {cmd} — {e}", file=sys.stderr)
 ```
 
-### Hook Script Pattern
+### 钩子脚本模式
 
-Hook scripts that need project-specific config (API keys, user IDs) should:
-1. Store config in a **gitignored** local file (e.g., `.trellis/hooks.local.json`)
-2. Read config at startup, fail with clear message if missing
-3. Keep the script itself committable (no hardcoded secrets)
+需要项目特定配置（API 密钥、用户 ID）的钩子脚本应该：
+1. 将配置存储在**被 gitignore 的**本地文件（例如 `.trellis/hooks.local.json`）
+2. 启动时读取配置，如果缺失则显示清晰消息失败
+3. 保持脚本本身可提交（无硬编码密钥）
 
 ```python
-# .trellis/scripts/hooks/my_hook.py — committable, no secrets
-CONFIG = _load_config()  # reads from .trellis/hooks.local.json (gitignored)
+# .trellis/scripts/hooks/my_hook.py — 可提交，无密钥
+CONFIG = _load_config()  # 从 .trellis/hooks.local.json 读取（被 gitignore）
 TEAM = CONFIG.get("linear", {}).get("team", "")
 ```
 
 ---
 
-## Auto-Commit Pattern
+## 自动提交模式
 
-Scripts that modify `.trellis/` tracked files should auto-commit their changes to keep the workspace clean. Use a `--no-commit` flag for opt-out.
+修改 `.trellis/` 跟踪文件的脚本应自动提交其更改以保持工作区整洁。使用 `--no-commit` 标志选择退出。
 
-### Convention: Auto-Commit After Mutation
+### 约定：变更后自动提交
 
 ```python
 def _auto_commit(scope: str, message: str, repo_root: Path) -> None:
-    """Stage and commit changes in a specific .trellis/ subdirectory."""
+    """暂存并提交特定 .trellis/ 子目录中的更改。"""
     subprocess.run(["git", "add", "-A", scope], cwd=repo_root, capture_output=True)
-    # Check if there are staged changes
+    # 检查是否有暂存的更改
     result = subprocess.run(
         ["git", "diff", "--cached", "--quiet", "--", scope],
         cwd=repo_root,
     )
     if result.returncode == 0:
-        print("[OK] No changes to commit.", file=sys.stderr)
+        print("[OK] 没有更改可提交。", file=sys.stderr)
         return
     commit_result = subprocess.run(
         ["git", "commit", "-m", message],
         cwd=repo_root, capture_output=True, text=True,
     )
     if commit_result.returncode == 0:
-        print(f"[OK] Auto-committed: {message}", file=sys.stderr)
+        print(f"[OK] 已自动提交: {message}", file=sys.stderr)
     else:
-        print(f"[WARN] Auto-commit failed: {commit_result.stderr.strip()}", file=sys.stderr)
+        print(f"[WARN] 自动提交失败: {commit_result.stderr.strip()}", file=sys.stderr)
 ```
 
-**Scripts using this pattern**:
-- `add_session.py` — commits `.trellis/workspace` + `.trellis/tasks` after recording a session
-- `task.py archive` — commits `.trellis/tasks` after archiving a task
+**使用此模式的脚本**：
+- `add_session.py` — 记录会话后提交 `.trellis/workspace` + `.trellis/tasks`
+- `task.py archive` — 归档任务后提交 `.trellis/tasks`
 
-**Always add `--no-commit` flag** for scripts that auto-commit, so users can opt out.
+**始终为自动提交的脚本添加 `--no-commit` 标志**，以便用户可以退出。
 
 ---
 
-## CLI Mode Extension Pattern
+## CLI 模式扩展模式
 
-### Design Decision: `--mode` for Context-Dependent Output
+### 设计决策：`--mode` 用于上下文相关的输出
 
-When a script needs different output for different use cases, use `--mode` (not separate scripts or additional flags).
+当脚本需要针对不同用例产生不同输出时，使用 `--mode`（而非单独的脚本或额外标志）。
 
-**Example**: `get_context.py` serves two modes:
-- `--mode default` — full session context (DEVELOPER, GIT STATUS, RECENT COMMITS, CURRENT TASK, ACTIVE TASKS, MY TASKS, JOURNAL, PATHS)
-- `--mode record` — focused output for record-session (MY ACTIVE TASKS first with emphasis, GIT STATUS, RECENT COMMITS, CURRENT TASK)
+**示例**：`get_context.py` 有两种模式：
+- `--mode default` — 完整会话上下文（开发者、GIT 状态、最近提交、当前任务、活跃任务、我的任务、日志、路径）
+- `--mode record` — 专注记录会话的输出（我的活跃任务优先并强调、GIT 状态、最近提交、当前任务）
 
 ```python
 parser.add_argument(
     "--mode", "-m",
     choices=["default", "record"],
     default="default",
-    help="Output mode: default (full context) or record (for record-session)",
+    help="输出模式：default（完整上下文）或 record（用于记录会话）",
 )
 ```
 
-**When to add a new mode** (not a new script):
-- Output is a subset/reordering of the same data
-- The underlying data sources are shared
-- The difference is in presentation, not in data fetching
+**何时添加新模式**（而非新脚本）：
+- 输出是相同数据的子集/重排序
+- 底层数据源是共享的
+- 区别在于呈现方式，而非数据获取
 
 ---
 
-## Error Handling
+## 错误处理
 
-### Exit Codes
+### 退出码
 
-| Code | Meaning |
+| 代码 | 含义 |
 |------|---------|
-| 0 | Success |
-| 1 | General error |
-| 2 | Usage error (wrong arguments) |
+| 0 | 成功 |
+| 1 | 常规错误 |
+| 2 | 用法错误（参数错误）|
 
-### Error Messages
+### 错误消息
 
-Print errors to stderr with context:
+将错误打印到 stderr 并附带上下文：
 
 ```python
 import sys
 
 def error(msg: str) -> None:
-    """Print error message to stderr."""
-    print(f"Error: {msg}", file=sys.stderr)
+    """将错误消息打印到 stderr。"""
+    print(f"错误: {msg}", file=sys.stderr)
 
-# Usage
+# 用法
 if not repo_root:
-    error("Not in a Trellis project (no .trellis directory found)")
+    error("不在 Trellis 项目中（未找到 .trellis 目录）")
     sys.exit(1)
 ```
 
 ---
 
-## Argument Parsing
+## 参数解析
 
-Use `argparse` for consistent CLI interface:
+使用 `argparse` 保持一致的 CLI 接口：
 
 ```python
 import argparse
@@ -541,24 +541,24 @@ import argparse
 
 def main() -> int:
     parser = argparse.ArgumentParser(
-        description="Task management",
+        description="任务管理",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
-Examples:
-  python3 task.py create "Add login" --slug add-login
+示例：
+  python3 task.py create "添加登录" --slug add-login
   python3 task.py list --mine --status in_progress
 """
     )
 
     subparsers = parser.add_subparsers(dest="command", required=True)
 
-    # create command
-    create_parser = subparsers.add_parser("create", help="Create new task")
-    create_parser.add_argument("title", help="Task title")
-    create_parser.add_argument("--slug", help="URL-friendly name")
+    # create 命令
+    create_parser = subparsers.add_parser("create", help="创建新任务")
+    create_parser.add_argument("title", help="任务标题")
+    create_parser.add_argument("--slug", help="URL 友好名称")
 
-    # list command
-    list_parser = subparsers.add_parser("list", help="List tasks")
+    # list 命令
+    list_parser = subparsers.add_parser("list", help="列出任务")
     list_parser.add_argument("--mine", "-m", action="store_true")
     list_parser.add_argument("--status", "-s", choices=["planning", "in_progress", "review", "completed"])
 
@@ -574,28 +574,28 @@ Examples:
 
 ---
 
-## Import Conventions
+## 导入约定
 
-### Relative Imports Within Package
+### 包内的相对导入
 
 ```python
-# In task.py (root level)
+# 在 task.py（根级别）
 from common.paths import get_repo_root, DIR_WORKFLOW
 from common.developer import get_developer
 
-# In common/developer.py
+# 在 common/developer.py 中
 from .paths import get_repo_root, DIR_WORKFLOW
 ```
 
-### Standard Library Imports
+### 标准库导入
 
-Group and order imports:
+分组并排序导入：
 
 ```python
-# 1. Future imports
+# 1. 未来导入
 from __future__ import annotations
 
-# 2. Standard library
+# 2. 标准库
 import argparse
 import json
 import os
@@ -604,46 +604,46 @@ import sys
 from datetime import datetime
 from pathlib import Path
 
-# 3. Local imports
+# 3. 本地导入
 from common.paths import get_repo_root
 from common.developer import get_developer
 ```
 
 ---
 
-## DO / DON'T
+## 做 / 不做
 
-### DO
+### 做
 
-- Use `pathlib.Path` for all path operations
-- Use type hints (Python 3.10+ syntax)
-- Return exit codes from `main()`
-- Print errors to stderr
-- Always use `python3` in documentation and messages
-- Use `encoding="utf-8"` for all file operations
+- 对所有路径操作使用 `pathlib.Path`
+- 使用类型提示（Python 3.10+ 语法）
+- 从 `main()` 返回退出码
+- 将错误打印到 stderr
+- 在文档和消息中始终使用 `python3`
+- 对所有文件操作使用 `encoding="utf-8"`
 
-### DON'T
+### 不做
 
-- Don't use string path concatenation
-- Don't use `os.path` when `pathlib` works
-- Don't rely on shebang for invocation documentation
-- Don't use `print()` for errors (use stderr)
-- Don't hardcode paths - use constants from `common/paths.py`
-- Don't use external dependencies (stdlib only)
-
----
-
-## Example: Complete Script
-
-See `.trellis/scripts/task.py` for a comprehensive example with:
-- Multiple subcommands
-- Argument parsing
-- JSON file operations
-- Error handling
-- Cross-platform path handling
+- 不使用字符串路径拼接
+- 当 `pathlib` 可用时不使用 `os.path`
+- 不依赖 shebang 进行调用文档
+- 不使用 `print()` 输出错误（使用 stderr）
+- 不硬编码路径 - 使用 `common/paths.py` 中的常量
+- 不使用外部依赖（仅限标准库）
 
 ---
 
-## Migration Note
+## 示例：完整脚本
 
-> **Historical Context**: Scripts were migrated from Bash to Python in v0.3.0 for cross-platform compatibility. The old shell scripts are archived in `.trellis/scripts-shell-archive/` (if preserved).
+参见 `.trellis/scripts/task.py` 中的完整示例，包含：
+- 多个子命令
+- 参数解析
+- JSON 文件操作
+- 错误处理
+- 跨平台路径处理
+
+---
+
+## 迁移说明
+
+> **历史背景**：脚本在 v0.3.0 从 Bash 迁移到 Python 以实现跨平台兼容性。旧的 shell 脚本存档在 `.trellis/scripts-shell-archive/` 中（如果保留）。

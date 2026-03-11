@@ -1,153 +1,153 @@
-# Cross-Layer Check
+# 跨层检查
 
-Check if your changes considered all dimensions. Most bugs come from "didn't think of it", not lack of technical skill.
+检查您的修改是否考虑了所有维度。大多数 bug 来自"没想到"，而不是技术能力的缺乏。
 
-> **Note**: This is a **post-implementation** safety net. Ideally, read the [Pre-Implementation Checklist](.trellis/spec/guides/pre-implementation-checklist.md) **before** writing code.
+> **注意**：这是**实现后**的安全网。理想情况下，在编写代码之前请阅读[实施前检查清单](.trellis/spec/guides/pre-implementation-checklist.md)。
 
 ---
 
-## Related Documents
+## 相关文档
 
-| Document | Purpose | Timing |
+| 文档 | 目的 | 时机 |
 |----------|---------|--------|
-| [Pre-Implementation Checklist](.trellis/spec/guides/pre-implementation-checklist.md) | Questions before coding | **Before** writing code |
-| [Code Reuse Thinking Guide](.trellis/spec/guides/code-reuse-thinking-guide.md) | Pattern recognition | During implementation |
-| **`/trellis-check-cross-layer`** (this) | Verification check | **After** implementation |
+| [实施前检查清单](.trellis/spec/guides/pre-implementation-checklist.md) | 编码前的问题 | **编写代码之前** |
+| [代码复用思考指南](.trellis/spec/guides/code-reuse-thinking-guide.md) | 模式识别 | 实现期间 |
+| **`/trellis-check-cross-layer`**（本命令） | 验证检查 | **实现后** |
 
 ---
 
-## Execution Steps
+## 执行步骤
 
-### 1. Identify Change Scope
+### 1. 识别变更范围
 
 ```bash
 git status
 git diff --name-only
 ```
 
-### 2. Select Applicable Check Dimensions
+### 2. 选择适用的检查维度
 
-Based on your change type, execute relevant checks below:
+根据您的变更类型，执行以下相关检查：
 
 ---
 
-## Dimension A: Cross-Layer Data Flow (Required when 3+ layers)
+## 维度 A：跨层数据流（3层或以上时必选）
 
-**Trigger**: Changes involve 3 or more layers
+**触发条件**：变更涉及 3 层或以上
 
-| Layer | Common Locations |
+| 层 | 常见位置 |
 |-------|------------------|
-| API/Routes | `routes/`, `api/`, `handlers/`, `controllers/` |
-| Service/Business Logic | `services/`, `lib/`, `core/`, `domain/` |
-| Database/Storage | `db/`, `models/`, `repositories/`, `schema/` |
-| UI/Presentation | `components/`, `views/`, `templates/`, `pages/` |
-| Utility | `utils/`, `helpers/`, `common/` |
+| API/路由 | `routes/`, `api/`, `handlers/`, `controllers/` |
+| 服务/业务逻辑 | `services/`, `lib/`, `core/`, `domain/` |
+| 数据库/存储 | `db/`, `models/`, `repositories/`, `schema/` |
+| UI/展示层 | `components/`, `views/`, `templates/`, `pages/` |
+| 工具函数 | `utils/`, `helpers/`, `common/` |
 
-**Checklist**:
-- [ ] Read flow: Database -> Service -> API -> UI
-- [ ] Write flow: UI -> API -> Service -> Database
-- [ ] Types/schemas correctly passed between layers?
-- [ ] Errors properly propagated to caller?
-- [ ] Loading/pending states handled at each layer?
+**检查清单**：
+- [ ] 读取流程：数据库 -> 服务 -> API -> UI
+- [ ] 写入流程：UI -> API -> 服务 -> 数据库
+- [ ] 类型/模式在各层之间正确传递？
+- [ ] 错误正确传播给调用方？
+- [ ] 各层的加载/待处理状态是否处理？
 
-**Detailed Guide**: `.trellis/spec/guides/cross-layer-thinking-guide.md`
+**详细指南**：`.trellis/spec/guides/cross-layer-thinking-guide.md`
 
 ---
 
-## Dimension B: Code Reuse (Required when modifying constants/config)
+## 维度 B：代码复用（修改常量/配置时必选）
 
-**Trigger**: 
-- Modifying UI constants (label, icon, color)
-- Modifying any hardcoded value
-- Seeing similar code in multiple places
-- Creating a new utility/helper function
-- Just finished batch modifications across files
+**触发条件**：
+- 修改 UI 常量（标签、图标、颜色）
+- 修改任何硬编码值
+- 在多个地方看到类似代码
+- 创建新的工具/辅助函数
+- 刚刚完成跨文件的批量修改
 
-**Checklist**:
-- [ ] Search first: How many places define this value?
+**检查清单**：
+- [ ] 先搜索：这个值在多少地方定义？
   ```bash
-  # Search in source files (adjust extensions for your project)
+  # 在源文件中搜索（根据项目调整扩展名）
   grep -r "value-to-change" src/
   ```
-- [ ] If 2+ places define same value -> Should extract to shared constant
-- [ ] After modification, all usage sites updated?
-- [ ] If creating utility: Does similar utility already exist?
+- [ ] 如果 2+ 处定义相同值 -> 应该提取到共享常量
+- [ ] 修改后，所有使用点都更新了吗？
+- [ ] 如果创建工具函数：是否已存在类似工具函数？
 
-**Detailed Guide**: `.trellis/spec/guides/code-reuse-thinking-guide.md`
+**详细指南**：`.trellis/spec/guides/code-reuse-thinking-guide.md`
 
 ---
 
-## Dimension B2: New Utility Functions
+## 维度 B2：新工具函数
 
-**Trigger**: About to create a new utility/helper function
+**触发条件**：即将创建新的工具/辅助函数
 
-**Checklist**:
-- [ ] Search for existing similar utilities first
+**检查清单**：
+- [ ] 先搜索现有类似工具函数
   ```bash
   grep -r "functionNamePattern" src/
   ```
-- [ ] If similar exists, can you extend it instead?
-- [ ] If creating new, is it in the right location (shared vs domain-specific)?
+- [ ] 如果存在类似函数，可以扩展它吗？
+- [ ] 如果创建新的，它在正确的位置吗（共享 vs 领域特定）？
 
 ---
 
-## Dimension B3: After Batch Modifications
+## 维度 B3：批量修改后
 
-**Trigger**: Just modified similar patterns in multiple files
+**触发条件**：刚刚在多个文件中修改了类似模式
 
-**Checklist**:
-- [ ] Did you check ALL files with similar patterns?
+**检查清单**：
+- [ ] 检查所有具有类似模式的文件了吗？
   ```bash
   grep -r "patternYouChanged" src/
   ```
-- [ ] Any files missed that should also be updated?
-- [ ] Should this pattern be abstracted to prevent future duplication?
+- [ ] 有遗漏的文件也应该更新吗？
+- [ ] 这个模式是否应该抽象化以防止未来重复？
 
 ---
 
-## Dimension C: Import/Dependency Paths (Required when creating new files)
+## 维度 C：导入/依赖路径（创建新文件时必选）
 
-**Trigger**: Creating new source files
+**触发条件**：创建新的源文件
 
-**Checklist**:
-- [ ] Using correct import paths (relative vs absolute)?
-- [ ] No circular dependencies?
-- [ ] Consistent with project's module organization?
+**检查清单**：
+- [ ] 使用正确的导入路径（相对 vs 绝对）？
+- [ ] 没有循环依赖？
+- [ ] 与项目的模块组织一致？
 
 ---
 
-## Dimension D: Same-Layer Consistency
+## 维度 D：同层一致性
 
-**Trigger**: 
-- Modifying display logic or formatting
-- Same domain concept used in multiple places
+**触发条件**：
+- 修改显示逻辑或格式化
+- 同一领域概念在多处使用
 
-**Checklist**:
-- [ ] Search for other places using same concept
+**检查清单**：
+- [ ] 搜索其他使用相同概念的地方
   ```bash
   grep -r "ConceptName" src/
   ```
-- [ ] Are these usages consistent?
-- [ ] Should they share configuration/constants?
+- [ ] 这些用法一致吗？
+- [ ] 它们应该共享配置/常量吗？
 
 ---
 
-## Common Issues Quick Reference
+## 常见问题快速参考
 
-| Issue | Root Cause | Prevention |
+| 问题 | 根本原因 | 预防 |
 |-------|------------|------------|
-| Changed one place, missed others | Didn't search impact scope | `grep` before changing |
-| Data lost at some layer | Didn't check data flow | Trace data source to destination |
-| Type/schema mismatch | Cross-layer types inconsistent | Use shared type definitions |
-| UI/output inconsistent | Same concept in multiple places | Extract shared constants |
-| Similar utility exists | Didn't search first | Search before creating |
-| Batch fix incomplete | Didn't verify all occurrences | grep after fixing |
+| 修改了一处，遗漏其他 | 没有搜索影响范围 | 变更前用 `grep` |
+| 数据在某些层丢失 | 没有检查数据流 | 从源头追踪数据到目的地 |
+| 类型/模式不匹配 | 跨层类型不一致 | 使用共享类型定义 |
+| UI/输出不一致 | 同一概念在多处 | 提取共享常量 |
+| 存在类似工具函数 | 没有先搜索 | 创建前先搜索 |
+| 批量修复不完整 | 没有验证所有出现位置 | 修复后用 grep 验证 |
 
 ---
 
-## Output
+## 输出
 
-Report:
-1. Which dimensions your changes involve
-2. Check results for each dimension
-3. Issues found and fix suggestions
+报告：
+1. 您的变更涉及哪些维度
+2. 每个维度的检查结果
+3. 发现的问题和修复建议

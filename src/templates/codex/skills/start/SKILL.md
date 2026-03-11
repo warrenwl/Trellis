@@ -1,334 +1,334 @@
 ---
 name: start
-description: "Start Session"
+description: "开始会话"
 ---
 
-# Start Session
+# 开始会话
 
-Initialize your AI development session and begin working on tasks.
-
----
-
-## Operation Types
-
-| Marker | Meaning | Executor |
-|--------|---------|----------|
-| `[AI]` | Bash scripts or tool calls executed by AI | You (AI) |
-| `[USER]` | Skills executed by user | User |
+初始化你的 AI 开发会话并开始处理任务。
 
 ---
 
-## Initialization `[AI]`
+## 操作类型
 
-### Step 1: Understand Development Workflow
+| 标记 | 含义 | 执行者 |
+| -------- | --------- | ---------- |
+| `[AI]` | AI 执行的 Bash 脚本或工具调用 | 你（AI） |
+| `[USER]` | 用户执行的技能 | 用户 |
 
-First, read the workflow guide to understand the development process:
+---
+
+## 初始化 `[AI]`
+
+### 步骤 1：了解开发工作流
+
+首先，阅读工作流指南以了解开发过程：
 
 ```bash
 cat .trellis/workflow.md
 ```
 
-**Follow the instructions in workflow.md** - it contains:
-- Core principles (Read Before Write, Follow Standards, etc.)
-- File system structure
-- Development process
-- Best practices
+**按照 workflow.md 中的说明** - 它包含：
+- 核心原则（先读后写、遵循标准等）
+- 文件系统结构
+- 开发过程
+- 最佳实践
 
-### Step 2: Get Current Context
+### 步骤 2：获取当前上下文
 
 ```bash
 python3 ./.trellis/scripts/get_context.py
 ```
 
-This shows: developer identity, git status, current task (if any), active tasks.
+这显示：开发人员身份、git 状态、当前任务（如果有）、活动任务。
 
-### Step 3: Read Guidelines Index
+### 步骤 3：阅读规范索引
 
 ```bash
-cat .trellis/spec/frontend/index.md  # Frontend guidelines
-cat .trellis/spec/backend/index.md   # Backend guidelines
-cat .trellis/spec/guides/index.md    # Thinking guides
+cat .trellis/spec/frontend/index.md  # 前端规范
+cat .trellis/spec/backend/index.md   # 后端规范
+cat .trellis/spec/guides/index.md    # 思维指南
 ```
 
-### Step 4: Report and Ask
+### 步骤 4：报告并询问
 
-Report what you learned and ask: "What would you like to work on?"
+报告你学到的东西并问："你想做什么工作？"
 
 ---
 
-## Task Classification
+## 任务分类
 
-When user describes a task, classify it:
+当用户描述任务时，对其进行分类：
 
-| Type | Criteria | Workflow |
+| 类型 | 标准 | 工作流 |
 |------|----------|----------|
-| **Question** | User asks about code, architecture, or how something works | Answer directly |
-| **Trivial Fix** | Typo fix, comment update, single-line change, < 5 minutes | Direct Edit |
-| **Simple Task** | Clear goal, 1-2 files, well-defined scope | Quick confirm → Task Workflow |
-| **Complex Task** | Vague goal, multiple files, architectural decisions | **Brainstorm → Task Workflow** |
+| **问题** | 用户询问代码、架构或某事如何工作 | 直接回答 |
+| **简单修复** | 拼写错误修复、注释更新、单行更改、< 5 分钟 | 直接编辑 |
+| **简单任务** | 目标明确，1-2 个文件，范围明确 | 快速确认 → 任务工作流 |
+| **复杂任务** | 目标模糊、多个文件、架构决策 | **头脑风暴 → 任务工作流** |
 
-### Decision Rule
+### 决策规则
 
-> **If in doubt, use Brainstorm + Task Workflow.**
+> **如果有疑问，使用头脑风暴 + 任务工作流。**
 >
-> Task Workflow ensures code-specs are injected to the right context, resulting in higher quality code.
-> The overhead is minimal, but the benefit is significant.
+> 任务工作流确保代码规范被注入到正确的上下文，从而产生更高质量的代码。
+> 开销很小，但收益很大。
 
-> **Subtask Decomposition**: If brainstorm reveals multiple independent work items,
-> consider creating subtasks using `--parent` flag or `add-subtask` command.
-> See the brainstorm skill's Step 8 for details.
-
----
-
-## Question / Trivial Fix
-
-For questions or trivial fixes, work directly:
-
-1. Answer question or make the fix
-2. If code was changed, remind user to run `$finish-work`
+> **子任务分解**：如果头脑风暴揭示了多个独立的工作项，
+> 考虑使用 `--parent` 标志或 `add-subtask` 命令创建子任务。
+> 详见头脑风暴技能的步骤 8。
 
 ---
 
-## Simple Task
+## 问题 / 简单修复
 
-For simple, well-defined tasks:
+对于问题或简单修复，直接处理：
 
-1. Quick confirm: "I understand you want to [goal]. Ready to proceed?"
-2. If yes, proceed to **Task Workflow Phase 1 Path B** (create task, write PRD, then research)
-3. If no, clarify and confirm again
-
----
-
-## Complex Task - Brainstorm First
-
-For complex or vague tasks, use the brainstorm process to clarify requirements.
-
-See `$brainstorm` for the full process. Summary:
-
-1. **Acknowledge and classify** - State your understanding
-2. **Create task directory** - Track evolving requirements in `prd.md`
-3. **Ask questions one at a time** - Update PRD after each answer
-4. **Propose approaches** - For architectural decisions
-5. **Confirm final requirements** - Get explicit approval
-6. **Proceed to Task Workflow** - With clear requirements in PRD
+1. 回答问题或进行修复
+2. 如果代码已更改，提醒用户运行 `$finish-work`
 
 ---
 
-## Task Workflow (Development Tasks)
+## 简单任务
 
-**Why this workflow?**
-- Run a dedicated research pass before coding
-- Configure specs in jsonl context files
-- Implement using injected context
-- Verify with a separate check pass
-- Result: Code that follows project conventions automatically
+对于简单、定义良好的任务：
 
-### Overview: Two Entry Points
+1. 快速确认："我理解你想 [目标]。准备继续吗？"
+2. 如果是，继续到**任务工作流阶段 1 路径 B**（创建任务，写 PRD，然后研究）
+3. 如果不是，澄清并再次确认
+
+---
+
+## 复杂任务 - 先头脑风暴
+
+对于复杂或模糊的任务，使用头脑风暴过程来澄清需求。
+
+参见 `$brainstorm` 了解完整过程。总结：
+
+1. **确认并分类** - 说出你的理解
+2. **创建任务目录** - 在 `prd.md` 中跟踪演变的需求
+3. **一次问一个问题** - 每次回答后更新 PRD
+4. **提出方法** - 对于架构决策
+5. **确认最终需求** - 获得明确批准
+6. **继续任务工作流** - 在 PRD 中有明确的需求
+
+---
+
+## 任务工作流（开发任务）
+
+**为什么使用此工作流？**
+- 在编码前运行专门的调研阶段
+- 在 jsonl 上下文中配置规范
+- 使用注入的上下文实施
+- 用单独的检查阶段验证
+- 结果：自动遵循项目约定的代码
+
+### 概述：两个入口点
 
 ```
-From Brainstorm (Complex Task):
-  PRD confirmed → Research → Configure Context → Activate → Implement → Check → Complete
+从头脑风暴（复杂任务）：
+  PRD 已确认 → 研究 → 配置上下文 → 激活 → 实现 → 检查 → 完成
 
-From Simple Task:
-  Confirm → Create Task → Write PRD → Research → Configure Context → Activate → Implement → Check → Complete
+从简单任务：
+  确认 → 创建任务 → 写 PRD → 研究 → 配置上下文 → 激活 → 实现 → 检查 → 完成
 ```
 
-**Key principle: Research happens AFTER requirements are clear (PRD exists).**
+**关键原则：研究发生在需求明确之后（PRD 存在）。**
 
 ---
 
-### Phase 1: Establish Requirements
+### 阶段 1：建立需求
 
-#### Path A: From Brainstorm (skip to Phase 2)
+#### 路径 A：从头脑风暴（跳到阶段 2）
 
-PRD and task directory already exist from brainstorm. Skip directly to Phase 2.
+PRD 和任务目录已从头脑风暴存在。直接跳到阶段 2。
 
-#### Path B: From Simple Task
+#### 路径 B：从简单任务
 
-**Step 1: Confirm Understanding** `[AI]`
+**步骤 1：确认理解** `[AI]`
 
-Quick confirm:
-- What is the goal?
-- What type of development? (frontend / backend / fullstack)
-- Any specific requirements or constraints?
+快速确认：
+- 目标是什么？
+- 什么类型的开发？（前端/后端/全栈）
+- 任何特定要求或约束？
 
-If unclear, ask clarifying questions.
+如果不清晰，提出澄清问题。
 
-**Step 2: Create Task Directory** `[AI]`
+**步骤 2：创建任务目录** `[AI]`
 
 ```bash
 TASK_DIR=$(python3 ./.trellis/scripts/task.py create "<title>" --slug <name>)
 ```
 
-**Step 3: Write PRD** `[AI]`
+**步骤 3：写 PRD** `[AI]`
 
-Create `prd.md` in the task directory with:
+在任务目录中创建 `prd.md`：
 
 ```markdown
-# <Task Title>
+# <任务标题>
 
-## Goal
-<What we're trying to achieve>
+## 目标
+<我们要实现什么>
 
-## Requirements
-- <Requirement 1>
-- <Requirement 2>
+## 需求
+- <需求 1>
+- <需求 2>
 
-## Acceptance Criteria
-- [ ] <Criterion 1>
-- [ ] <Criterion 2>
+## 验收标准
+- [ ] <标准 1>
+- [ ] <标准 2>
 
-## Technical Notes
-<Any technical decisions or constraints>
+## 技术笔记
+<任何技术决策或约束>
 ```
 
 ---
 
-### Phase 2: Prepare for Implementation (shared)
+### 阶段 2：准备实施（共享）
 
-> Both paths converge here. PRD and task directory must exist before proceeding.
+> 两条路径在此汇合。PRD 和任务目录在继续之前必须存在。
 
-**Step 4: Code-Spec Depth Check** `[AI]`
+**步骤 4：代码规范深度检查** `[AI]`
 
-If the task touches infra or cross-layer contracts, do not start implementation until code-spec depth is defined.
+如果任务涉及基础设施或跨层契约，在定义代码规范深度之前不要开始实施。
 
-Trigger this requirement when the change includes any of:
-- New or changed command/API signatures
-- Database schema or migration changes
-- Infra integrations (storage, queue, cache, secrets, env contracts)
-- Cross-layer payload transformations
+当更改包含以下任何一项时触发此要求：
+- 新增或更改的命令/API 签名
+- 数据库模式或迁移更改
+- 基础设施集成（存储、队列、缓存、密钥、环境契约）
+- 跨层有效载荷转换
 
-Must-have before proceeding:
-- [ ] Target code-spec files to update are identified
-- [ ] Concrete contract is defined (signature, fields, env keys)
-- [ ] Validation and error matrix is defined
-- [ ] At least one Good/Base/Bad case is defined
+继续之前必须有：
+- [ ] 目标代码规范文件已确定
+- [ ] 定义了具体契约（签名、字段、环境密钥）
+- [ ] 定义了验证和错误矩阵
+- [ ] 至少定义了一个好/基础/坏情况
 
-**Step 5: Research the Codebase** `[AI]`
+**步骤 5：研究代码库** `[AI]`
 
-Based on the confirmed PRD, run a focused research pass and produce:
+根据已确认的 PRD，运行专门的调研并产生：
 
-1. Relevant spec files in `.trellis/spec/`
-2. Existing code patterns to follow (2-3 examples)
-3. Files that will likely need modification
+1. `.trellis/spec/` 中相关的规范文件
+2. 要遵循的现有代码模式（2-3 个示例）
+3. 可能需要修改的文件
 
-Use this output format:
+使用此输出格式：
 
 ```markdown
-## Relevant Specs
-- <path>: <why it's relevant>
+## 相关规范
+- <path>: <为什么相关>
 
-## Code Patterns Found
-- <pattern>: <example file path>
+## 发现的代码模式
+- <pattern>: <示例文件路径>
 
-## Files to Modify
-- <path>: <what change>
+## 要修改的文件
+- <path>: <什么更改>
 ```
 
-**Step 6: Configure Context** `[AI]`
+**步骤 6：配置上下文** `[AI]`
 
-Initialize default context:
+初始化默认上下文：
 
 ```bash
 python3 ./.trellis/scripts/task.py init-context "$TASK_DIR" <type>
 # type: backend | frontend | fullstack
 ```
 
-Add specs found in your research pass:
+添加调研中发现的内容：
 
 ```bash
-# For each relevant spec and code pattern:
+# 对于每个相关规范和代码模式：
 python3 ./.trellis/scripts/task.py add-context "$TASK_DIR" implement "<path>" "<reason>"
 python3 ./.trellis/scripts/task.py add-context "$TASK_DIR" check "<path>" "<reason>"
 ```
 
-**Step 7: Activate Task** `[AI]`
+**步骤 7：激活任务** `[AI]`
 
 ```bash
 python3 ./.trellis/scripts/task.py start "$TASK_DIR"
 ```
 
-This sets `.current-task` so hooks can inject context.
+这设置 `.current-task` 以便 hooks 可以注入上下文。
 
 ---
 
-### Phase 3: Execute (shared)
+### 阶段 3：执行（共享）
 
-**Step 8: Implement** `[AI]`
+**步骤 8：实施** `[AI]`
 
-Implement the task described in `prd.md`.
+实施 `prd.md` 中描述的任务。
 
-- Follow all specs injected into implement context
-- Keep changes scoped to requirements
-- Run lint and typecheck before finishing
+- 遵循注入到实施上下文的所有规范
+- 保持更改范围在需求内
+- 完成后运行 lint 和 typecheck
 
-**Step 9: Check Quality** `[AI]`
+**步骤 9：检查质量** `[AI]`
 
-Run a quality pass against check context:
+对检查上下文运行质量检查：
 
-- Review all code changes against the specs
-- Fix issues directly
-- Ensure lint and typecheck pass
+- 根据规范审查所有代码更改
+- 直接修复问题
+- 确保 lint 和 typecheck 通过
 
-**Step 10: Complete** `[AI]`
+**步骤 10：完成** `[AI]`
 
-1. Verify lint and typecheck pass
-2. Report what was implemented
-3. Remind user to:
-   - Test the changes
-   - Commit when ready
-   - Run `$record-session` to record this session
-
----
-
-## Continuing Existing Task
-
-If `get_context.py` shows a current task:
-
-1. Read the task's `prd.md` to understand the goal
-2. Check `task.json` for current status and phase
-3. Ask user: "Continue working on <task-name>?"
-
-If yes, resume from the appropriate step (usually Step 7 or 8).
+1. 验证 lint 和 typecheck 通过
+2. 报告实施了什么
+3. 提醒用户：
+   - 测试更改
+   - 准备好后提交
+   - 运行 `$record-session` 记录此会话
 
 ---
 
-## Skills Reference
+## 继续现有任务
 
-### User Skills `[USER]`
+如果 `get_context.py` 显示当前任务：
 
-| Skill | When to Use |
+1. 阅读任务的 `prd.md` 了解目标
+2. 检查 `task.json` 了解当前状态和阶段
+3. 问用户："继续处理 <task-name>？"
+
+如果是，从适当的步骤恢复（通常步骤 7 或 8）。
+
+---
+
+## 技能参考
+
+### 用户技能 `[USER]`
+
+| 技能 | 何时使用 |
 |---------|-------------|
-| `$start` | Begin a session (this skill) |
-| `$finish-work` | Before committing changes |
-| `$record-session` | After completing a task |
+| `$start` | 开始会话（此技能） |
+| `$finish-work` | 提交更改之前 |
+| `$record-session` | 完成任务后 |
 
-### AI Scripts `[AI]`
+### AI 脚本 `[AI]`
 
-| Script | Purpose |
-|--------|---------|
-| `python3 ./.trellis/scripts/get_context.py` | Get session context |
-| `python3 ./.trellis/scripts/task.py create` | Create task directory |
-| `python3 ./.trellis/scripts/task.py init-context` | Initialize jsonl files |
-| `python3 ./.trellis/scripts/task.py add-context` | Add spec to jsonl |
-| `python3 ./.trellis/scripts/task.py start` | Set current task |
-| `python3 ./.trellis/scripts/task.py finish` | Clear current task |
-| `python3 ./.trellis/scripts/task.py archive` | Archive completed task |
+| 脚本 | 用途 |
+|---------|---------|
+| `python3 ./.trellis/scripts/get_context.py` | 获取会话上下文 |
+| `python3 ./.trellis/scripts/task.py create` | 创建任务目录 |
+| `python3 ./.trellis/scripts/task.py init-context` | 初始化 jsonl 文件 |
+| `python3 ./.trellis/scripts/task.py add-context` | 添加规范到 jsonl |
+| `python3 ./.trellis/scripts/task.py start` | 设置当前任务 |
+| `python3 ./.trellis/scripts/task.py finish` | 清除当前任务 |
+| `python3 ./.trellis/scripts/task.py archive` | 归档已完成的任务 |
 
-### Workflow Phases `[AI]`
+### 工作流阶段 `[AI]`
 
-| Phase | Purpose | Context Source |
+| 阶段 | 用途 | 上下文来源 |
 |-------|---------|----------------|
-| research | Analyze codebase | direct repo inspection |
-| implement | Write code | `implement.jsonl` |
-| check | Review & fix | `check.jsonl` |
-| debug | Fix specific issues | `debug.jsonl` |
+| research | 分析代码库 | 直接代码库检查 |
+| implement | 编写代码 | `implement.jsonl` |
+| check | 审查和修复 | `check.jsonl` |
+| debug | 修复特定问题 | `debug.jsonl` |
 
 ---
 
-## Key Principle
+## 关键原则
 
-> **Code-spec context is injected, not remembered.**
+> **代码规范上下文是注入的，不是记忆的。**
 >
-> The Task Workflow ensures agents receive relevant code-spec context automatically.
-> This is more reliable than hoping the AI "remembers" conventions.
+> 任务工作流确保代理自动接收相关的代码规范上下文。
+> 这比希望 AI "记住"约定更可靠。

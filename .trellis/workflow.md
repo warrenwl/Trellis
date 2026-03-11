@@ -1,318 +1,318 @@
-# Development Workflow
+# 开发工作流
 
-> Based on [Effective Harnesses for Long-Running Agents](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents)
-
----
-
-## Table of Contents
-
-1. [Quick Start (Do This First)](#quick-start-do-this-first)
-2. [Workflow Overview](#workflow-overview)
-3. [Session Start Process](#session-start-process)
-4. [Development Process](#development-process)
-5. [Session End](#session-end)
-6. [File Descriptions](#file-descriptions)
-7. [Best Practices](#best-practices)
+> 基于 [Effective Harnesses for Long-Running Agents](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents)
 
 ---
 
-## Quick Start (Do This First)
+## 目录
 
-### Step 0: Initialize Developer Identity (First Time Only)
+1. [快速开始（首先执行）](#快速开始首先执行)
+2. [工作流概述](#工作流概述)
+3. [会话启动流程](#会话启动流程)
+4. [开发流程](#开发流程)
+5. [会话结束](#会话结束)
+6. [文件说明](#文件说明)
+7. [最佳实践](#最佳实践)
 
-> **Multi-developer support**: Each developer/Agent needs to initialize their identity first
+---
+
+## 快速开始（首先执行）
+
+### 步骤 0：初始化开发者身份（仅首次执行）
+
+> **多开发者支持**：每个开发者/Agent 需要首先初始化自己的身份
 
 ```bash
-# Check if already initialized
+# 检查是否已初始化
 python3 ./.trellis/scripts/get_developer.py
 
-# If not initialized, run:
+# 如果未初始化，运行：
 python3 ./.trellis/scripts/init_developer.py <your-name>
-# Example: python3 ./.trellis/scripts/init_developer.py cursor-agent
+# 示例：python3 ./.trellis/scripts/init_developer.py cursor-agent
 ```
 
-This creates:
-- `.trellis/.developer` - Your identity file (gitignored, not committed)
-- `.trellis/workspace/<your-name>/` - Your personal workspace directory
+这将创建：
+- `.trellis/.developer` - 您的身份文件（gitignored，不提交）
+- `.trellis/workspace/<your-name>/` - 您的个人工作区目录
 
-**Naming suggestions**:
-- Human developers: Use your name, e.g., `john-doe`
-- Cursor AI: `cursor-agent` or `cursor-<task>`
-- Claude Code: `claude-agent` or `claude-<task>`
+**命名建议**：
+- 人类开发者：使用您的名字，例如 `john-doe`
+- Cursor AI：`cursor-agent` 或 `cursor-<task>`
+- Claude Code：`claude-agent` 或 `claude-<task>`
 
-### Step 1: Understand Current Context
+### 步骤 1：了解当前上下文
 
 ```bash
-# Get full context in one command
+# 一条命令获取完整上下文
 python3 ./.trellis/scripts/get_context.py
 
-# Or check manually:
-python3 ./.trellis/scripts/get_developer.py      # Your identity
-python3 ./.trellis/scripts/task.py list          # Active tasks
-git status && git log --oneline -10              # Git state
+# 或手动检查：
+python3 ./.trellis/scripts/get_developer.py      # 您的身份
+python3 ./.trellis/scripts/task.py list          # 活跃任务
+git status && git log --oneline -10              # Git 状态
 ```
 
-### Step 2: Read Project Guidelines [MANDATORY]
+### 步骤 2：阅读项目指南 [必需]
 
-**CRITICAL**: Read guidelines before writing any code:
+**关键**：编写任何代码前必须阅读指南：
 
 ```bash
-# Read frontend guidelines index (if applicable)
+# 阅读前端指南索引（如适用）
 cat .trellis/spec/frontend/index.md
 
-# Read backend guidelines index (if applicable)
+# 阅读后端指南索引（如适用）
 cat .trellis/spec/backend/index.md
 ```
 
-**Why read both?**
-- Understand the full project architecture
-- Know coding standards for the entire codebase
-- See how frontend and backend interact
-- Learn the overall code quality requirements
+**为什么要阅读两者？**
+- 了解完整的项目架构
+- 了解整个代码库的编码标准
+- 了解前端和后端如何交互
+- 了解整体代码质量要求
 
-### Step 3: Before Coding - Read Specific Guidelines (Required)
+### 步骤 3：编码前 - 阅读具体指南（必需）
 
-Based on your task, read the **detailed** guidelines:
+根据您的任务，阅读**详细**指南：
 
-**Frontend Task**:
+**前端任务**：
 ```bash
-cat .trellis/spec/frontend/hook-guidelines.md      # For hooks
-cat .trellis/spec/frontend/component-guidelines.md # For components
-cat .trellis/spec/frontend/type-safety.md          # For types
+cat .trellis/spec/frontend/hook-guidelines.md      # 钩子
+cat .trellis/spec/frontend/component-guidelines.md # 组件
+cat .trellis/spec/frontend/type-safety.md          # 类型
 ```
 
-**Backend Task**:
+**后端任务**：
 ```bash
-cat .trellis/spec/backend/database-guidelines.md   # For DB operations
-cat .trellis/spec/backend/type-safety.md           # For types
-cat .trellis/spec/backend/logging-guidelines.md    # For logging
+cat .trellis/spec/backend/database-guidelines.md   # 数据库操作
+cat .trellis/spec/backend/type-safety.md           # 类型
+cat .trellis/spec/backend/logging-guidelines.md    # 日志
 ```
 
 ---
 
-## Workflow Overview
+## 工作流概述
 
-### Core Principles
+### 核心原则
 
-1. **Read Before Write** - Understand context before starting
-2. **Follow Standards** - [!] **MUST read `.trellis/spec/` guidelines before coding**
-3. **Incremental Development** - Complete one task at a time
-4. **Record Promptly** - Update tracking files immediately after completion
-5. **Document Limits** - [!] **Max 2000 lines per journal document**
+1. **先读后写** - 开始前先了解上下文
+2. **遵循标准** - [!] **编码前必须阅读 `.trellis/spec/` 指南**
+3. **增量开发** - 一次完成一个任务
+4. **及时记录** - 完成后立即更新跟踪文件
+5. **记录限制** - [!] **每个日志文档最多 2000 行**
 
-### File System
+### 文件系统
 
 ```
 .trellis/
-|-- .developer           # Developer identity (gitignored)
+|-- .developer           # 开发者身份（gitignored）
 |-- scripts/
-|   |-- __init__.py          # Python package init
-|   |-- common/              # Shared utilities (Python)
+|   |-- __init__.py          # Python 包初始化
+|   |-- common/              # 共享工具（Python）
 |   |   |-- __init__.py
-|   |   |-- paths.py         # Path utilities
-|   |   |-- developer.py     # Developer management
-|   |   +-- git_context.py   # Git context implementation
-|   |-- multi_agent/         # Multi-agent pipeline scripts
+|   |   |-- paths.py         # 路径工具
+|   |   |-- developer.py     # 开发者管理
+|   |   +-- git_context.py   # Git 上下文实现
+|   |-- multi_agent/         # 多 Agent 流水线脚本
 |   |   |-- __init__.py
-|   |   |-- start.py         # Start worktree agent
-|   |   |-- status.py        # Monitor agent status
-|   |   |-- create_pr.py     # Create PR
-|   |   +-- cleanup.py       # Cleanup worktree
-|   |-- init_developer.py    # Initialize developer identity
-|   |-- get_developer.py     # Get current developer name
-|   |-- task.py              # Manage tasks
-|   |-- get_context.py       # Get session context
-|   +-- add_session.py       # One-click session recording
-|-- workspace/           # Developer workspaces
-|   |-- index.md         # Workspace index + Session template
-|   +-- {developer}/     # Per-developer directories
-|       |-- index.md     # Personal index (with @@@auto markers)
-|       +-- journal-N.md # Journal files (sequential numbering)
-|-- tasks/               # Task tracking
+|   |   |-- start.py         # 启动 worktree agent
+|   |   |-- status.py        # 监控 agent 状态
+|   |   |-- create_pr.py     # 创建 PR
+|   |   +-- cleanup.py       # 清理 worktree
+|   |-- init_developer.py    # 初始化开发者身份
+|   |-- get_developer.py     # 获取当前开发者名称
+|   |-- task.py              # 任务管理
+|   |-- get_context.py       # 获取会话上下文
+|   +-- add_session.py       # 一键会话记录
+|-- workspace/           # 开发者工作区
+|   |-- index.md         # 工作区索引 + 会话模板
+|   +-- {developer}/     # 每个开发者的目录
+|       |-- index.md     # 个人索引（带 @@@auto 标记）
+|       +-- journal-N.md # 日志文件（顺序编号）
+|-- tasks/               # 任务跟踪
 |   +-- {MM}-{DD}-{name}/
 |       +-- task.json
-|-- spec/                # [!] MUST READ before coding
-|   |-- frontend/        # Frontend guidelines (if applicable)
-|   |   |-- index.md               # Start here - guidelines index
-|   |   +-- *.md                   # Topic-specific docs
-|   |-- backend/         # Backend guidelines (if applicable)
-|   |   |-- index.md               # Start here - guidelines index
-|   |   +-- *.md                   # Topic-specific docs
-|   +-- guides/          # Thinking guides
-|       |-- index.md                      # Guides index
-|       |-- cross-layer-thinking-guide.md # Pre-implementation checklist
-|       +-- *.md                          # Other guides
-+-- workflow.md             # This document
+|-- spec/                # [!] 编码前必须阅读
+|   |-- frontend/        # 前端指南（如适用）
+|   |   |-- index.md               # 从这里开始 - 指南索引
+|   |   +-- *.md                   # 主题特定文档
+|   |-- backend/         # 后端指南（如适用）
+|   |   |-- index.md               # 从这里开始 - 指南索引
+|   |   +-- *.md                   # 主题特定文档
+|   +-- guides/          # 思维指南
+|       |-- index.md                      # 指南索引
+|       |-- cross-layer-thinking-guide.md # 实现前检查清单
+|       +-- *.md                          # 其他指南
++-- workflow.md             # 本文档
 ```
 
 ---
 
-## Session Start Process
+## 会话启动流程
 
-### Step 1: Get Session Context
+### 步骤 1：获取会话上下文
 
-Use the unified context script:
+使用统一的上下文脚本：
 
 ```bash
-# Get all context in one command
+# 一条命令获取所有上下文
 python3 ./.trellis/scripts/get_context.py
 
-# Or get JSON format
+# 或获取 JSON 格式
 python3 ./.trellis/scripts/get_context.py --json
 ```
 
-### Step 2: Read Development Guidelines [!] REQUIRED
+### 步骤 2：阅读开发指南 [!] 必需
 
-**[!] CRITICAL: MUST read guidelines before writing any code**
+**[!] 关键：编写任何代码前必须阅读指南**
 
-Based on what you'll develop, read the corresponding guidelines:
+根据您要开发的内容，阅读相应的指南：
 
-**Frontend Development** (if applicable):
+**前端开发**（如适用）：
 ```bash
-# Read index first, then specific docs based on task
+# 首先阅读索引，然后根据任务阅读具体文档
 cat .trellis/spec/frontend/index.md
 ```
 
-**Backend Development** (if applicable):
+**后端开发**（如适用）：
 ```bash
-# Read index first, then specific docs based on task
+# 首先阅读索引，然后根据任务阅读具体文档
 cat .trellis/spec/backend/index.md
 ```
 
-**Cross-Layer Features**:
+**跨层功能**：
 ```bash
-# For features spanning multiple layers
+# 对于跨越多个层的功能
 cat .trellis/spec/guides/cross-layer-thinking-guide.md
 ```
 
-### Step 3: Select Task to Develop
+### 步骤 3：选择要开发的任务
 
-Use the task management script:
+使用任务管理脚本：
 
 ```bash
-# List active tasks
+# 列出活跃任务
 python3 ./.trellis/scripts/task.py list
 
-# Create new task (creates directory with task.json)
+# 创建新任务（创建带 task.json 的目录）
 python3 ./.trellis/scripts/task.py create "<title>" --slug <task-name>
 ```
 
 ---
 
-## Development Process
+## 开发流程
 
-### Task Development Flow
+### 任务开发流程
 
 ```
-1. Create or select task
-   --> python3 ./.trellis/scripts/task.py create "<title>" --slug <name> or list
+1. 创建或选择任务
+   --> python3 ./.trellis/scripts/task.py create "<title>" --slug <name> 或 list
 
-2. Write code according to guidelines
-   --> Read .trellis/spec/ docs relevant to your task
-   --> For cross-layer: read .trellis/spec/guides/
+2. 根据指南编写代码
+   --> 阅读 .trellis/spec/ 与任务相关的文档
+   --> 跨层功能：阅读 .trellis/spec/guides/
 
-3. Self-test
-   --> Run project's lint/test commands (see spec docs)
-   --> Manual feature testing
+3. 自行测试
+   --> 运行项目的 lint/test 命令（见 spec 文档）
+   --> 手动功能测试
 
-4. Commit code
+4. 提交代码
    --> git add <files>
    --> git commit -m "type(scope): description"
-       Format: feat/fix/docs/refactor/test/chore
+       格式：feat/fix/docs/refactor/test/chore
 
-5. Record session (one command)
+5. 记录会话（一键操作）
    --> python3 ./.trellis/scripts/add_session.py --title "Title" --commit "hash"
 ```
 
-### Code Quality Checklist
+### 代码质量检查清单
 
-**Must pass before commit**:
-- [OK] Lint checks pass (project-specific command)
-- [OK] Type checks pass (if applicable)
-- [OK] Manual feature testing passes
+**提交前必须通过**：
+- [OK] Lint 检查通过（项目特定命令）
+- [OK] 类型检查通过（如适用）
+- [OK] 手动功能测试通过
 
-**Project-specific checks**:
-- See `.trellis/spec/frontend/quality-guidelines.md` for frontend
-- See `.trellis/spec/backend/quality-guidelines.md` for backend
+**项目特定检查**：
+- 前端见 `.trellis/spec/frontend/quality-guidelines.md`
+- 后端见 `.trellis/spec/backend/quality-guidelines.md`
 
 ---
 
-## Session End
+## 会话结束
 
-### One-Click Session Recording
+### 一键会话记录
 
-After code is committed, use:
+代码提交后，使用：
 
 ```bash
 python3 ./.trellis/scripts/add_session.py \
-  --title "Session Title" \
+  --title "会话标题" \
   --commit "abc1234" \
-  --summary "Brief summary"
+  --summary "简要总结"
 ```
 
-This automatically:
-1. Detects current journal file
-2. Creates new file if 2000-line limit exceeded
-3. Appends session content
-4. Updates index.md (sessions count, history table)
+这将自动：
+1. 检测当前日志文件
+2. 如果超过 2000 行限制则创建新文件
+3. 追加会话内容
+4. 更新 index.md（会话数量、历史表）
 
-### Pre-end Checklist
+### 结束前检查清单
 
-Use `/trellis:finish-work` command to run through:
-1. [OK] All code committed, commit message follows convention
-2. [OK] Session recorded via `add_session.py`
-3. [OK] No lint/test errors
-4. [OK] Working directory clean (or WIP noted)
-5. [OK] Spec docs updated if needed
+使用 `/trellis:finish-work` 命令运行：
+1. [OK] 所有代码已提交，提交消息符合规范
+2. [OK] 已通过 `add_session.py` 记录会话
+3. [OK] 无 lint/test 错误
+4. [OK] 工作区干净（或已记录 WIP）
+5. [OK] 如需要已更新 spec 文档
 
 ---
 
-## File Descriptions
+## 文件说明
 
-### 1. workspace/ - Developer Workspaces
+### 1. workspace/ - 开发者工作区
 
-**Purpose**: Record each AI Agent session's work content
+**目的**：记录每个 AI Agent 会话的工作内容
 
-**Structure** (Multi-developer support):
+**结构**（多开发者支持）：
 ```
 workspace/
-|-- index.md              # Main index (Active Developers table)
-+-- {developer}/          # Per-developer directory
-    |-- index.md          # Personal index (with @@@auto markers)
-    +-- journal-N.md      # Journal files (sequential: 1, 2, 3...)
+|-- index.md              # 主索引（活跃开发者表）
++-- {developer}/          # 每个开发者的目录
+    |-- index.md          # 个人索引（带 @@@auto 标记）
+    +-- journal-N.md      # 日志文件（顺序：1, 2, 3...）
 ```
 
-**When to update**:
-- [OK] End of each session
-- [OK] Complete important task
-- [OK] Fix important bug
+**更新时机**：
+- [OK] 每个会话结束时
+- [OK] 完成重要任务时
+- [OK] 修复重要 bug 时
 
-### 2. spec/ - Development Guidelines
+### 2. spec/ - 开发指南
 
-**Purpose**: Documented standards for consistent development
+**目的**：文档化的开发一致性标准
 
-**Structure** (Multi-doc format):
+**结构**（多文档格式）：
 ```
 spec/
-|-- frontend/           # Frontend docs (if applicable)
-|   |-- index.md        # Start here
-|   +-- *.md            # Topic-specific docs
-|-- backend/            # Backend docs (if applicable)
-|   |-- index.md        # Start here
-|   +-- *.md            # Topic-specific docs
-+-- guides/             # Thinking guides
-    |-- index.md        # Start here
-    +-- *.md            # Guide-specific docs
+|-- frontend/           # 前端文档（如适用）
+|   |-- index.md        # 从这里开始
+|   +-- *.md            # 主题特定文档
+|-- backend/            # 后端文档（如适用）
+|   |-- index.md        # 从这里开始
+|   +-- *.md            # 主题特定文档
++-- guides/             # 思维指南
+    |-- index.md        # 从这里开始
+    +-- *.md            # 指南特定文档
 ```
 
-**When to update**:
-- [OK] New pattern discovered
-- [OK] Bug fixed that reveals missing guidance
-- [OK] New convention established
+**更新时机**：
+- [OK] 发现新模式时
+- [OK] 修复 bug 时发现缺少指导
+- [OK] 建立新约定时
 
-### 3. Tasks - Task Tracking
+### 3. Tasks - 任务跟踪
 
-Each task is a directory containing `task.json`:
+每个任务是一个包含 `task.json` 的目录：
 
 ```
 tasks/
@@ -324,92 +324,92 @@ tasks/
             +-- task.json
 ```
 
-**Commands**:
+**命令**：
 ```bash
-python3 ./.trellis/scripts/task.py create "<title>" [--slug <name>]   # Create task directory
-python3 ./.trellis/scripts/task.py archive <name>  # Archive to archive/{year-month}/
-python3 ./.trellis/scripts/task.py list            # List active tasks
-python3 ./.trellis/scripts/task.py list-archive    # List archived tasks
+python3 ./.trellis/scripts/task.py create "<title>" [--slug <name>]   # 创建任务目录
+python3 ./.trellis/scripts/task.py archive <name>  # 归档到 archive/{year-month}/
+python3 ./.trellis/scripts/task.py list            # 列出活跃任务
+python3 ./.trellis/scripts/task.py list-archive    # 列出已归档任务
 ```
 
 ---
 
-## Best Practices
+## 最佳实践
 
-### [OK] DO - Should Do
+### [OK] 应该做
 
-1. **Before session start**:
-   - Run `python3 ./.trellis/scripts/get_context.py` for full context
-   - [!] **MUST read** relevant `.trellis/spec/` docs
+1. **会话开始前**：
+   - 运行 `python3 ./.trellis/scripts/get_context.py` 获取完整上下文
+   - [!] **必须阅读** 相关的 `.trellis/spec/` 文档
 
-2. **During development**:
-   - [!] **Follow** `.trellis/spec/` guidelines
-   - For cross-layer features, use `/trellis:check-cross-layer`
-   - Develop only one task at a time
-   - Run lint and tests frequently
+2. **开发期间**：
+   - [!] **遵循** `.trellis/spec/` 指南
+   - 对于跨层功能，使用 `/trellis:check-cross-layer`
+   - 一次只开发一个任务
+   - 频繁运行 lint 和测试
 
-3. **After development complete**:
-   - Use `/trellis:finish-work` for completion checklist
-   - After fix bug, use `/trellis:break-loop` for deep analysis
-   - Human commits after testing passes
-   - Use `add_session.py` to record progress
+3. **开发完成后**：
+   - 使用 `/trellis:finish-work` 完成检查清单
+   - 修复 bug 后，使用 `/trellis:break-loop` 进行深度分析
+   - 人类在测试通过后提交
+   - 使用 `add_session.py` 记录进度
 
-### [X] DON'T - Should Not Do
+### [X] 不应该做
 
-1. [!] **Don't** skip reading `.trellis/spec/` guidelines
-2. [!] **Don't** let journal single file exceed 2000 lines
-3. **Don't** develop multiple unrelated tasks simultaneously
-4. **Don't** commit code with lint/test errors
-5. **Don't** forget to update spec docs after learning something
-6. [!] **Don't** execute `git commit` - AI should not commit code
+1. [!] **不要**跳过阅读 `.trellis/spec/` 指南
+2. [!] **不要**让单个日志文件超过 2000 行
+3. **不要**同时开发多个不相关的任务
+4. **不要**提交有 lint/test 错误的代码
+5. **不要**在学习新东西后忘记更新 spec 文档
+6. [!] **不要**执行 `git commit` - AI 不应该提交代码
 
 ---
 
-## Quick Reference
+## 快速参考
 
-### Must-read Before Development
+### 开发前必读
 
-| Task Type | Must-read Document |
+| 任务类型 | 必读文档 |
 |-----------|-------------------|
-| Frontend work | `frontend/index.md` → relevant docs |
-| Backend work | `backend/index.md` → relevant docs |
-| Cross-Layer Feature | `guides/cross-layer-thinking-guide.md` |
+| 前端工作 | `frontend/index.md` → 相关文档 |
+| 后端工作 | `backend/index.md` → 相关文档 |
+| 跨层功能 | `guides/cross-layer-thinking-guide.md` |
 
-### Commit Convention
+### 提交规范
 
 ```bash
 git commit -m "type(scope): description"
 ```
 
-**Type**: feat, fix, docs, refactor, test, chore
-**Scope**: Module name (e.g., auth, api, ui)
+**类型**：feat, fix, docs, refactor, test, chore
+**范围**：模块名称（例如 auth, api, ui）
 
-### Common Commands
+### 常用命令
 
 ```bash
-# Session management
-python3 ./.trellis/scripts/get_context.py    # Get full context
-python3 ./.trellis/scripts/add_session.py    # Record session
+# 会话管理
+python3 ./.trellis/scripts/get_context.py    # 获取完整上下文
+python3 ./.trellis/scripts/add_session.py    # 记录会话
 
-# Task management
-python3 ./.trellis/scripts/task.py list      # List tasks
-python3 ./.trellis/scripts/task.py create "<title>" # Create task
+# 任务管理
+python3 ./.trellis/scripts/task.py list      # 列出任务
+python3 ./.trellis/scripts/task.py create "<title>" # 创建任务
 
-# Slash commands
-/trellis:finish-work          # Pre-commit checklist
-/trellis:break-loop           # Post-debug analysis
-/trellis:check-cross-layer    # Cross-layer verification
+# 斜杠命令
+/trellis:finish-work          # 提交前检查清单
+/trellis:break-loop           # 调试后分析
+/trellis:check-cross-layer    # 跨层验证
 ```
 
 ---
 
-## Summary
+## 总结
 
-Following this workflow ensures:
-- [OK] Continuity across multiple sessions
-- [OK] Consistent code quality
-- [OK] Trackable progress
-- [OK] Knowledge accumulation in spec docs
-- [OK] Transparent team collaboration
+遵循此工作流确保：
+- [OK] 多个会话之间的连续性
+- [OK] 一致的代码质量
+- [OK] 可跟踪的进度
+- [OK] 在 spec 文档中积累知识
+- [OK] 透明的团队协作
 
-**Core Philosophy**: Read before write, follow standards, record promptly, capture learnings
+**核心理念**：先读后写，遵循标准，及时记录，捕获学习成果

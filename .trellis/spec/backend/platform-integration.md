@@ -1,251 +1,251 @@
-# Platform Integration Guide
+# 平台集成指南
 
-How to add support for a new AI CLI platform (like Claude Code, Cursor, Gemini CLI, OpenCode, iFlow, Codex, Kilo, Kiro, Qoder).
-
----
-
-## Architecture
-
-Platform support uses a **centralized registry pattern** (similar to Turborepo's package manager support):
-
-- **Data registry**: `src/types/ai-tools.ts` — `AI_TOOLS` record with all platform metadata
-- **Function registry**: `src/configurators/index.ts` — `PLATFORM_FUNCTIONS` with configure/collectTemplates per platform
-- **Shared utilities**: `src/configurators/shared.ts` — `resolvePlaceholders()` used by both init and update paths
-- **Shared utilities**: `src/utils/compare-versions.ts` — `compareVersions()` with full prerelease support (used by cli, update, migrations)
-- **Derived helpers**: `ALL_MANAGED_DIRS`, `getConfiguredPlatforms()`, etc. — consumed by update, init, hash tracking
-
-All lists (backup dirs, template dirs, platform detection, cleanup whitelist) are **derived from the registry automatically**. No scattered hardcoded lists.
+如何添加对新 AI CLI 平台的支持（如 Claude Code、Cursor、Gemini CLI、OpenCode、iFlow、Codex、Kilo、Kiro、Qoder）。
 
 ---
 
-## Checklist: Adding a New Platform
+## 架构
 
-When adding a new platform `{platform}`, update the following:
+平台支持使用**集中注册表模式**（类似于 Turborepo 的包管理器支持）：
 
-### Step 1: Type Definitions (data registry)
+- **数据注册表**：`src/types/ai-tools.ts` — 包含所有平台元数据的 `AI_TOOLS` 记录
+- **函数注册表**：`src/configurators/index.ts` — 每个平台的 `PLATFORM_FUNCTIONS` 含 configure/collectTemplates
+- **共享工具**：`src/configurators/shared.ts` — init 和 update 路径都使用的 `resolvePlaceholders()`
+- **共享工具**：`src/utils/compare-versions.ts` — 支持完整预发布的 `compareVersions()`（由 cli、update、migrations 使用）
+- **派生辅助函数**：`ALL_MANAGED_DIRS`、`getConfiguredPlatforms()` 等 — 由 update、init、哈希追踪使用
 
-| File | Change |
+所有列表（备份目录、模板目录、平台检测、清理白名单）都**自动从注册表派生**。没有分散的硬编码列表。
+
+---
+
+## 检查清单：添加新平台
+
+添加新平台 `{platform}` 时，更新以下内容：
+
+### 第 1 步：类型定义（数据注册表）
+
+| 文件 | 更改 |
 |------|--------|
-| `src/types/ai-tools.ts` | Add to `AITool` union type |
-| `src/types/ai-tools.ts` | Add to `CliFlag` union type |
-| `src/types/ai-tools.ts` | Add to `TemplateDir` union type |
-| `src/types/ai-tools.ts` | Add entry to `AI_TOOLS` record (name, configDir, cliFlag, defaultChecked, hasPythonHooks, templateDirs) |
+| `src/types/ai-tools.ts` | 添加到 `AITool` 联合类型 |
+| `src/types/ai-tools.ts` | 添加到 `CliFlag` 联合类型 |
+| `src/types/ai-tools.ts` | 添加到 `TemplateDir` 联合类型 |
+| `src/types/ai-tools.ts` | 在 `AI_TOOLS` 记录中添加条目（name、configDir、cliFlag、defaultChecked、hasPythonHooks、templateDirs）|
 
-**This single entry automatically propagates to**: `BACKUP_DIRS`, `TEMPLATE_DIRS`, `getConfiguredPlatforms()`, `cleanupEmptyDirs()`, `initializeHashes()`, init `TOOLS[]` prompt, Windows detection.
+**此单一条目自动传播到**：`BACKUP_DIRS`、`TEMPLATE_DIRS`、`getConfiguredPlatforms()`、`cleanupEmptyDirs()`、`initializeHashes()`、init `TOOLS[]` 提示、Windows 检测。
 
-### Step 2: CLI Flag
+### 第 2 步：CLI 标志
 
-| File | Change |
+| 文件 | 更改 |
 |------|--------|
-| `src/cli/index.ts` | Add `--{platform}` option |
-| `src/commands/init.ts` | Add `{platform}?: boolean` to `InitOptions` interface |
+| `src/cli/index.ts` | 添加 `--{platform}` 选项 |
+| `src/commands/init.ts` | 在 `InitOptions` 接口添加 `{platform}?: boolean` |
 
-> Note: Commander.js options and TypeScript interfaces require static declarations — cannot be derived from registry. A compile-time assertion `_AssertCliFlagsInOptions` in `init.ts` will catch missing `InitOptions` fields — you'll get a build error if `CliFlag` has a value not present in `InitOptions`.
+> 注意：Commander.js 选项和 TypeScript 接口需要静态声明 — 无法从注册表派生。`init.ts` 中的编译时断言 `_AssertCliFlagsInOptions` 将捕获缺失的 `InitOptions` 字段 — 如果 `CliFlag` 有不在 `InitOptions` 中的值，您将收到构建错误。
 
-### Step 3: Configurator (function registry)
+### 第 3 步：配置器（函数注册表）
 
-| File | Change |
+| 文件 | 更改 |
 |------|--------|
-| `src/configurators/{platform}.ts` | Create new configurator (copy from existing, export `configure{Platform}`) |
-| `src/configurators/index.ts` | Add entry to `PLATFORM_FUNCTIONS` with `configure` and optional `collectTemplates` |
+| `src/configurators/{platform}.ts` | 创建新配置器（从现有复制，导出 `configure{Platform}`）|
+| `src/configurators/index.ts` | 在 `PLATFORM_FUNCTIONS` 中添加条目，含 `configure` 和可选的 `collectTemplates` |
 
-### Step 4: Templates
+### 第 4 步：模板
 
-**Standard pattern** (Python hooks — like Claude, iFlow):
+**标准模式**（Python 钩子 — 如 Claude、iFlow）：
 
-| Directory | Contents |
+| 目录 | 内容 |
 |-----------|----------|
-| `src/templates/{platform}/` | Root directory |
-| `src/templates/{platform}/index.ts` | Export functions for commands, agents, hooks, settings |
-| `src/templates/{platform}/commands/trellis/` | Slash commands (`.md` files) |
-| `src/templates/{platform}/agents/` | Agent definitions (`.md` files) |
-| `src/templates/{platform}/hooks/` | Hook scripts (`.py` files) |
-| `src/templates/{platform}/settings.json` | Platform settings (may use `{{PYTHON_CMD}}` placeholder) |
+| `src/templates/{platform}/` | 根目录 |
+| `src/templates/{platform}/index.ts` | 导出命令、代理、钩子、设置的函数 |
+| `src/templates/{platform}/commands/trellis/` | 斜杠命令（`.md` 文件）|
+| `src/templates/{platform}/agents/` | 代理定义（`.md` 文件）|
+| `src/templates/{platform}/hooks/` | 钩子脚本（`.py` 文件）|
+| `src/templates/{platform}/settings.json` | 平台设置（可使用 `{{PYTHON_CMD}}` 占位符）|
 
-**JS plugin pattern** (like OpenCode):
+**JS 插件模式**（如 OpenCode）：
 
-| Directory | Contents |
+| 目录 | 内容 |
 |-----------|----------|
-| `src/templates/{platform}/` | Root directory |
-| `src/templates/{platform}/commands/trellis/` | Slash commands (`.md` files) |
-| `src/templates/{platform}/plugin/` | JS plugin files |
-| `src/templates/{platform}/lib/` | JS library files |
-| `src/templates/{platform}/package.json` | Plugin dependencies |
+| `src/templates/{platform}/` | 根目录 |
+| `src/templates/{platform}/commands/trellis/` | 斜杠命令（`.md` 文件）|
+| `src/templates/{platform}/plugin/` | JS 插件文件 |
+| `src/templates/{platform}/lib/` | JS 库文件 |
+| `src/templates/{platform}/package.json` | 插件依赖 |
 
-> Note: OpenCode uses JS plugins instead of Python hooks, has no `index.ts` template module, and has no `collectTemplates` — so `trellis update` does not track OpenCode template files. If a new platform uses JS plugins, follow this pattern.
+> 注意：OpenCode 使用 JS 插件而非 Python 钩子，没有 `index.ts` 模板模块，也没有 `collectTemplates` — 因此 `trellis update` 不跟踪 OpenCode 模板文件。如果新平台使用 JS 插件，遵循此模式。
 
-**Skills pattern** (Codex, Kiro, Qoder):
+**技能模式**（Codex、Kiro、Qoder）：
 
-| Directory | Contents |
+| 目录 | 内容 |
 |-----------|----------|
-| `src/templates/{platform}/` | Root directory |
-| `src/templates/{platform}/index.ts` | Export functions for listing skills |
-| `src/templates/{platform}/skills/<skill-name>/SKILL.md` | Skill definitions |
+| `src/templates/{platform}/` | 根目录 |
+| `src/templates/{platform}/index.ts` | 导出列出技能的函数 |
+| `src/templates/{platform}/skills/<skill-name>/SKILL.md` | 技能定义 |
 
-> Note: Codex/Kiro/Qoder use skills (not slash commands). Skill content should use `$<skill-name>` / `/skills` semantics, not `/trellis:*` syntax. Qoder skills use YAML frontmatter (`---\nname: ...\n---`) at the top of each SKILL.md.
+> 注意：Codex/Kiro/Qoder 使用技能（而非斜杠命令）。技能内容应使用 `$<skill-name>` / `/skills` 语义，而非 `/trellis:*` 语法。Qoder 技能在每个 SKILL.md 顶部使用 YAML frontmatter（`---\nname: ...\n---`）。
 
-**Commands-only pattern** (Cursor):
+**仅命令模式**（Cursor）：
 
-| Directory | Contents |
+| 目录 | 内容 |
 |-----------|----------|
-| `src/templates/{platform}/` | Root directory |
-| `src/templates/{platform}/index.ts` | Export `getAllCommands(): CommandTemplate[]` |
-| `src/templates/{platform}/commands/` | Slash commands (`.md` files) |
+| `src/templates/{platform}/` | 根目录 |
+| `src/templates/{platform}/index.ts` | 导出 `getAllCommands(): CommandTemplate[]` |
+| `src/templates/{platform}/commands/` | 斜杠命令（`.md` 文件）|
 
-> Note: Cursor uses flat prefix naming (`trellis-start.md` → `/trellis-start`). No hooks, no agents, no settings.
+> 注意：Cursor 使用平面前缀命名（`trellis-start.md` → `/trellis-start`）。无钩子，无代理，无设置。
 
-**Workflows pattern** (Kilo):
+**工作流模式**（Kilo）：
 
-| Directory | Contents |
+| 目录 | 内容 |
 |-----------|----------|
-| `src/templates/{platform}/` | Root directory |
-| `src/templates/{platform}/index.ts` | Export `getAllWorkflows(): WorkflowTemplate[]` |
-| `src/templates/{platform}/workflows/` | Workflow files (`.md` files) |
+| `src/templates/{platform}/` | 根目录 |
+| `src/templates/{platform}/index.ts` | 导出 `getAllWorkflows(): WorkflowTemplate[]` |
+| `src/templates/{platform}/workflows/` | 工作流文件（`.md` 文件）|
 
-> Note: Kilo uses flat workflow directory (`workflows/start.md` → `/start`). No hooks, no agents, no settings.
+> 注意：Kilo 使用平面工作流目录（`workflows/start.md` → `/start`）。无钩子，无代理，无设置。
 
-**TOML commands pattern** (Gemini CLI):
+**TOML 命令模式**（Gemini CLI）：
 
-| Directory | Contents |
+| 目录 | 内容 |
 |-----------|----------|
-| `src/templates/{platform}/` | Root directory |
-| `src/templates/{platform}/index.ts` | Export `getAllCommands(): CommandTemplate[]` (filter `.toml` not `.md`) |
-| `src/templates/{platform}/commands/trellis/` | Slash commands (`.toml` files) |
+| `src/templates/{platform}/` | 根目录 |
+| `src/templates/{platform}/index.ts` | 导出 `getAllCommands(): CommandTemplate[]`（过滤 `.toml` 而非 `.md`）|
+| `src/templates/{platform}/commands/trellis/` | 斜杠命令（`.toml` 文件）|
 
-> Note: Gemini CLI is the first platform using TOML for commands instead of Markdown. TOML format: `description = "..."` + `prompt = """..."""`. Subdirectory namespacing works the same as Claude (`commands/trellis/start.toml` → `/trellis:start`). When creating TOML templates, use triple-quoted strings (`"""`) for multi-line prompts.
+> 注意：Gemini CLI 是第一个使用 TOML 而非 Markdown 的命令平台。TOML 格式：`description = "..."` + `prompt = """..."""`。子目录命名空间与 Claude 相同（`commands/trellis/start.toml` → `/trellis:start`）。创建 TOML 模板时，对多行提示使用三引号字符串（`"""`）。
 
-**Workflows pattern** (Antigravity):
+**工作流模式**（Antigravity）：
 
-| Directory | Contents |
+| 目录 | 内容 |
 |-----------|----------|
-| `src/templates/{platform}/` | Root directory |
-| `src/templates/{platform}/index.ts` | Export `getAllWorkflows(): WorkflowTemplate[]` |
+| `src/templates/{platform}/` | 根目录 |
+| `src/templates/{platform}/index.ts` | 导出 `getAllWorkflows(): WorkflowTemplate[]` |
 
-> Note: Antigravity has no physical template files — workflow content is **derived from Codex skills at runtime** via `adaptSkillContentToWorkflow()`. The config dir is `.agent/workflows` (not `.agent/`). Workflows are triggered with `/workflow-name` slash commands. When adding a new Codex skill, Antigravity automatically picks it up.
+> 注意：Antigravity 没有物理模板文件 — 工作流内容在运行时**从 Codex 技能派生**，通过 `adaptSkillContentToWorkflow()`。配置目录是 `.agent/workflows`（而非 `.agent/`）。工作流通过 `/workflow-name` 斜杠命令触发。添加新 Codex 技能时，Antigravity 自动拾取。
 
-**Required commands/skills**: All platforms must include the following (adapted to each platform's format):
+**必需命令/技能**：所有平台必须包含以下内容（适应每个平台的格式）：
 
-| Command | Purpose | Required |
+| 命令 | 目的 | 必需 |
 |---------|---------|----------|
-| `start` | Session initialization | Yes |
-| `finish-work` | Pre-commit checklist | Yes |
-| `brainstorm` | Requirements discovery | Yes |
-| `break-loop` | Post-debug analysis | Yes |
-| `record-session` | Session recording | Yes |
-| `before-backend-dev` | Read backend guidelines | Yes |
-| `before-frontend-dev` | Read frontend guidelines | Yes |
-| `check-backend` | Check backend code quality | Yes |
-| `check-frontend` | Check frontend code quality | Yes |
-| `check-cross-layer` | Cross-layer verification | Yes |
-| `create-command` | Create new slash command | Yes |
-| `integrate-skill` | Integrate external skill | Yes |
-| `onboard` | Team onboarding guide | Yes |
-| `update-spec` | Update code-spec docs | Yes |
-| `parallel` | Multi-agent parallel work | Optional (platform capability) |
-| `migrate-specs` | Migrate spec versions | Optional |
+| `start` | 会话初始化 | 是 |
+| `finish-work` | 提交前检查清单 | 是 |
+| `brainstorm` | 需求发现 | 是 |
+| `break-loop` | 调试后分析 | 是 |
+| `record-session` | 会话录制 | 是 |
+| `before-backend-dev` | 阅读后端指南 | 是 |
+| `before-frontend-dev` | 阅读前端指南 | 是 |
+| `check-backend` | 检查后端代码质量 | 是 |
+| `check-frontend` | 检查前端代码质量 | 是 |
+| `check-cross-layer` | 跨层验证 | 是 |
+| `create-command` | 创建新斜杠命令 | 是 |
+| `integrate-skill` | 集成外部技能 | 是 |
+| `onboard` | 团队入职指南 | 是 |
+| `update-spec` | 更新代码规范文档 | 是 |
+| `parallel` | 多代理并行工作 | 可选（平台能力）|
+| `migrate-specs` | 迁移规范版本 | 可选 |
 
-> **Rule**: When a new command is added to any platform, it must be added to ALL platforms. Check `src/templates/claude/commands/trellis/` as the reference list.
+> **规则**：当新命令添加到任何平台时，必须添加到所有平台。检查 `src/templates/claude/commands/trellis/` 作为参考列表。
 
-### Step 5: Template Extraction
+### 第 5 步：模板提取
 
-| File | Change |
+| 文件 | 更改 |
 |------|--------|
-| `src/templates/extract.ts` | Add `get{Platform}TemplatePath()` function + `get{Platform}SourcePath()` deprecated alias |
+| `src/templates/extract.ts` | 添加 `get{Platform}TemplatePath()` 函数 + `get{Platform}SourcePath()` 废弃别名 |
 
-### Step 6: Python Scripts (independent runtime)
+### 第 6 步：Python 脚本（独立运行时）
 
-> **Warning**: `cli_adapter.py` uses if/elif/else chains with NO exhaustive check. New platforms silently fall through to the `else` branch (Claude defaults). You MUST add explicit branches for **every method** listed below.
+> **警告**：`cli_adapter.py` 使用 if/elif/else 链**无穷尽检查**。新平台静默进入 `else` 分支（Claude 默认）。您必须为下面列出的**每个方法**添加显式分支。
 
-| File | Change |
+| 文件 | 更改 |
 |------|--------|
-| `src/templates/trellis/scripts/common/cli_adapter.py` | Add to `Platform` literal type, `config_dir_name` property, `detect_platform()`, `get_cli_adapter()` validation |
+| `src/templates/trellis/scripts/common/cli_adapter.py` | 添加到 `Platform` 字面类型、`config_dir_name` 属性、`detect_platform()`、`get_cli_adapter()` 验证 |
 
-**cli_adapter.py methods requiring explicit branches** (do NOT rely on `else` fallthrough):
+**需要显式分支的 cli_adapter.py 方法**（不要依赖 `else` 穿透）：
 
-| Method | What to decide | Example |
+| 方法 | 决定什么 | 示例 |
 |--------|---------------|---------|
-| `config_dir_name` | Config directory name | `".gemini"`, `".agent"` |
-| `get_trellis_command_path()` | Command file path format | `.toml` vs `.md`, subdirectory vs flat |
-| `get_non_interactive_env()` | Non-interactive env var | `{}` if none, or platform-specific |
-| `build_run_command()` | CLI command for running agents | `["gemini", prompt]` or raise ValueError |
-| `build_resume_command()` | CLI command for resuming sessions | `["gemini", "--resume", id]` or raise ValueError |
-| `cli_name` | CLI executable name | `"gemini"`, `"agy"` |
-| `detect_platform()` | Directory detection logic | Check `.gemini/` exists |
-| `get_commands_path()` | Command directory structure | `commands/trellis/` or `workflows/` |
-| `src/templates/trellis/scripts/common/registry.py` | Update default platform if needed |
-| `src/templates/trellis/scripts/multi_agent/plan.py` | Add to `--platform` choices **only if** `build_run_command()` returns a valid command (not `raise ValueError`) |
-| `src/templates/trellis/scripts/multi_agent/start.py` | Add to `--platform` choices **only if** `build_run_command()` returns a valid command (not `raise ValueError`) |
-| `src/templates/trellis/scripts/multi_agent/status.py` | Add platform-specific behavior if needed (only if supported) |
+| `config_dir_name` | 配置目录名称 | `".gemini"`、`.agent"` |
+| `get_trellis_command_path()` | 命令文件路径格式 | `.toml` vs `.md`，子目录 vs 平面 |
+| `get_non_interactive_env()` | 非交互环境变量 | `{}`（如果没有）或平台特定 |
+| `build_run_command()` | 运行代理的 CLI 命令 | `["gemini", prompt]` 或抛出 ValueError |
+| `build_resume_command()` | 恢复会话的 CLI 命令 | `["gemini", "--resume", id]` 或抛出 ValueError |
+| `cli_name` | CLI 可执行文件名 | `"gemini"`、`"agy"` |
+| `detect_platform()` | 目录检测逻辑 | 检查 `.gemini/` 存在 |
+| `get_commands_path()` | 命令目录结构 | `commands/trellis/` 或 `workflows/` |
+| `src/templates/trellis/scripts/common/registry.py` | 需要时更新默认平台 |
+| `src/templates/trellis/scripts/multi_agent/plan.py` | 仅当 `build_run_command()` 返回有效命令（不是 `raise ValueError`）时添加到 `--platform` 选项 |
+| `src/templates/trellis/scripts/multi_agent/start.py` | 仅当 `build_run_command()` 返回有效命令（不是 `raise ValueError`）时添加到 `--platform` 选项 |
+| `src/templates/trellis/scripts/multi_agent/status.py` | 如需要添加平台特定行为（仅当支持时）|
 
-> Note: Python scripts run in user projects at runtime — they cannot import from the TS registry and maintain their own registry in `cli_adapter.py`.
->
-> Current scope for Codex integration: common scripts + `task.py` context path mapping. Multi-agent runtime (`multi_agent/*.py`) is intentionally out of scope.
+> 注意：Python 脚本在用户项目运行时执行 — 它们无法从 TS 注册表导入，在 `cli_adapter.py` 中维护自己的注册表。
 
-### Step 7: Documentation
+> 当前 Codex 集成范围：公共脚本 + `task.py` 上下文路径映射。多代理运行时（`multi_agent/*.py`）故意不在范围内。
 
-| File | Change |
+### 第 7 步：文档
+
+| 文件 | 更改 |
 |------|--------|
-| `README.md` | Add platform to supported tools list |
-| `README_CN.md` | Add platform to supported tools list (Chinese) |
+| `README.md` | 将平台添加到支持工具列表 |
+| `README_CN.md` | 将平台添加到支持工具列表（中文）|
 
-### Step 8: Build Scripts
+### 第 8 步：构建脚本
 
-| File | Change |
+| 文件 | 更改 |
 |------|--------|
-| `scripts/copy-templates.js` | No change needed (copies entire `src/templates/` directory) |
+| `scripts/copy-templates.js` | 无需更改（复制整个 `src/templates/` 目录）|
 
-### Step 9: Project Config (Optional)
+### 第 9 步：项目配置（可选）
 
-If Trellis project itself should support the new platform:
+如果 Trellis 项目本身应支持新平台：
 
-| Directory | Contents |
+| 目录 | 内容 |
 |-----------|----------|
-| `.{platform}/` | Project's own config directory |
-| `.{platform}/commands/trellis/` | Slash commands |
-| `.{platform}/agents/` | Agents |
-| `.{platform}/hooks/` | Hooks |
-| `.{platform}/settings.json` | Settings |
+| `.{platform}/` | 项目自己的配置目录 |
+| `.{platform}/commands/trellis/` | 斜杠命令 |
+| `.{platform}/agents/` | 代理 |
+| `.{platform}/hooks/` | 钩子 |
+| `.{platform}/settings.json` | 设置 |
 
-### Step 10: Gitignore
+### 第 10 步：Gitignore
 
-| File | Change |
+| 文件 | 更改 |
 |------|--------|
-| `.gitignore` | Add local config patterns (e.g., `{platform}.local.json`) |
+| `.gitignore` | 添加本地配置模式（如 `{platform}.local.json`）|
 
-### Step 11: Tests (MANDATORY)
+### 第 11 步：测试（必需）
 
-> **Warning**: Dynamic iteration tests (e.g., `PLATFORM_IDS.forEach`) only verify registry metadata. They do NOT cover platform-specific runtime behavior. You MUST add explicit tests.
+> **警告**：动态迭代测试（如 `PLATFORM_IDS.forEach`）仅验证注册表元数据。它们不覆盖平台特定的运行时行为。您必须添加显式测试。
 
-| Test File | What to Add |
+| 测试文件 | 添加什么 |
 |-----------|-------------|
-| `test/templates/{platform}.test.ts` | **NEW FILE**: Verify `getAllCommands()`/`getAllSkills()`/`getAllWorkflows()` returns expected set, content non-empty, format valid |
-| `test/configurators/platforms.test.ts` | Detection test: `getConfiguredPlatforms` finds `.{configDir}`. Configurator test: `configurePlatform` writes expected files, no compiled artifacts |
-| `test/commands/init.integration.test.ts` | Init test: `init({ {platform}: true })` creates correct directory. Negative assertions: add `.{configDir}` checks to existing platform tests |
-| `test/templates/extract.test.ts` | `get{Platform}TemplatePath()` returns existing dir. `get{Platform}SourcePath()` deprecated alias equals template path |
-| `test/regression.test.ts` | Platform registration: `AI_TOOLS.{platform}` exists with correct `configDir`. cli_adapter: `commonCliAdapter` contains `"{platform}"` and `".{configDir}"`. Update `withTracking` list if `collectTemplates` is defined |
+| `test/templates/{platform}.test.ts` | **新文件**：验证 `getAllCommands()`/`getAllSkills()`/`getAllWorkflows()` 返回预期集合，内容非空，格式有效 |
+| `test/configurators/platforms.test.ts` | 检测测试：`getConfiguredPlatforms` 找到 `.{configDir}`。配置器测试：`configurePlatform` 写入预期文件，无编译产物 |
+| `test/commands/init.integration.test.ts` | Init 测试：`init({ {platform}: true })` 创建正确目录。负面断言：在现有平台测试中添加 `.{configDir}` 检查 |
+| `test/templates/extract.test.ts` | `get{Platform}TemplatePath()` 返回现有目录。`get{Platform}SourcePath()` 废弃别名等于模板路径 |
+| `test/regression.test.ts` | 平台注册：`AI_TOOLS.{platform}` 存在且 `configDir` 正确。cli_adapter：`commonCliAdapter` 包含 `"{platform}"` 和 `".{configDir}"`。如果定义了 `collectTemplates`，更新 `withTracking` 列表 |
 
 ---
 
-## What You DON'T Need to Update
+## 您不需要更新的内容
 
-These are now **automatically derived** from the registry:
+这些现在**自动从注册表派生**：
 
-| Previously hardcoded | Now derived from |
+| 之前硬编码 | 现在派生自 |
 |---------------------|------------------|
-| `BACKUP_DIRS` in update.ts | `ALL_MANAGED_DIRS` from `configurators/index.ts` |
-| `TEMPLATE_DIRS` in template-hash.ts | `ALL_MANAGED_DIRS` from `configurators/index.ts` |
-| `getConfiguredPlatforms()` in update.ts | `getConfiguredPlatforms()` from `configurators/index.ts` |
-| `cleanupEmptyDirs()` whitelist in update.ts | `isManagedPath()` / `isManagedRootDir()` from `configurators/index.ts` |
-| `collectTemplateFiles()` if/else in update.ts | `collectPlatformTemplates()` dispatch loop |
-| `TOOLS[]` in init.ts | `getInitToolChoices()` from `configurators/index.ts` |
-| Configurator dispatch in init.ts | `configurePlatform()` from `configurators/index.ts` |
-| Windows Python detection in init.ts | `getPlatformsWithPythonHooks()` from `configurators/index.ts` |
+| `update.ts` 中的 `BACKUP_DIRS` | `configurators/index.ts` 中的 `ALL_MANAGED_DIRS` |
+| `template-hash.ts` 中的 `TEMPLATE_DIRS` | `configurators/index.ts` 中的 `ALL_MANAGED_DIRS` |
+| `update.ts` 中的 `getConfiguredPlatforms()` | `configurators/index.ts` 中的 `getConfiguredPlatforms()` |
+| `update.ts` 中的 `cleanupEmptyDirs()` 白名单 | `configurators/index.ts` 中的 `isManagedPath()` / `isManagedRootDir()` |
+| `update.ts` 中的 `collectTemplateFiles()` if/else | `collectPlatformTemplates()` 分发循环 |
+| `init.ts` 中的 `TOOLS[]` | `configurators/index.ts` 中的 `getInitToolChoices()` |
+| `init.ts` 中的配置器分发 | `configurators/index.ts` 中的 `configurePlatform()` |
+| `init.ts` 中的 Windows Python 检测 | `configurators/index.ts` 中的 `getPlatformsWithPythonHooks()` |
 
 ---
 
-## Command Format by Platform
+## 按平台的命令格式
 
-| Platform | Command Format | File Format | Example |
+| 平台 | 命令格式 | 文件格式 | 示例 |
 |----------|---------------|-------------|---------|
 | Claude Code | `/trellis:xxx` | Markdown (`.md`) | `/trellis:start` |
 | Cursor | `/trellis-xxx` | Markdown (`.md`) | `/trellis-start` |
@@ -258,13 +258,13 @@ These are now **automatically derived** from the registry:
 | Qoder | `$<skill-name>` / `/skills` | Markdown (`SKILL.md`) | `$start` |
 | Antigravity | `/<workflow-name>` | Markdown (`.md`) | `/start` |
 
-When creating platform templates, ensure references match the platform's interaction format and file format.
+创建平台模板时，确保引用匹配平台的交互格式和文件格式。
 
 ---
 
-## Windows Encoding Fix
+## Windows 编码修复
 
-All hook scripts that output to stdout must include the Windows encoding fix:
+所有输出到 stdout 的钩子脚本必须包含 Windows 编码修复：
 
 ```python
 # IMPORTANT: Force stdout to use UTF-8 on Windows
@@ -279,167 +279,169 @@ if sys.platform == "win32":
 
 ---
 
-## Common Mistakes
+## 常见错误
 
-### Forgot to add entry to PLATFORM_FUNCTIONS
+### 忘记添加到 PLATFORM_FUNCTIONS
 
-**Symptom**: `trellis init` configures the platform, but `trellis update` doesn't track its template files.
+**症状**：`trellis init` 配置了平台，但 `trellis update` 不跟踪其模板文件。
 
-**Fix**: Add entry with `collectTemplates` function to `PLATFORM_FUNCTIONS` in `src/configurators/index.ts`.
+**修复**：在 `src/configurators/index.ts` 的 `PLATFORM_FUNCTIONS` 中添加带 `collectTemplates` 函数的条目。
 
-### Missing platform in cli_adapter.py
+### cli_adapter.py 中缺少平台
 
-**Symptom**: Python scripts fail with "Unsupported platform" error.
+**症状**：Python 脚本失败并显示"Unsupported platform"错误。
 
-**Fix**: Add platform to `Platform` literal type, `config_dir_name` property, and `get_cli_adapter()` validation in `cli_adapter.py`.
+**修复**：在 `cli_adapter.py` 中的 `Platform` 字面类型、`config_dir_name` 属性和 `get_cli_adapter()` 验证中添加平台。
 
-### Wrong command format in templates
+### 模板中命令格式错误
 
-**Symptom**: Slash commands don't work or show wrong format.
+**症状**：斜杠命令不工作或显示错误格式。
 
-**Fix**: Check platform's command format and update all command references in templates.
+**修复**：检查平台的命令格式并更新模板中的所有命令引用。
 
-### Codex template copied from project `.agents/skills` instead of `src/templates`
+### Codex 模板从项目 `.agents/skills` 而非 `src/templates` 复制
 
-**Symptom**: Generated templates accidentally include repo-specific customizations and drift from template source-of-truth.
+**症状**：生成的模板意外包含特定于仓库的自定义，并与模板真实来源漂移。
 
-**Fix**: Always use `src/templates/{platform}/...` as source templates for `init/update`. Do not copy from project runtime directories.
+**修复**：始终使用 `src/templates/{platform}/...` 作为 `init/update` 的源模板。不要从项目运行时目录复制。
 
-### Codex skill directory exists but `SKILL.md` is missing
+### Codex 技能目录存在但缺少 `SKILL.md`
 
-**Symptom**: Template loading fails with `ENOENT` when scanning skills.
+**症状**：扫描技能时模板加载失败并显示 `ENOENT`。
 
-**Fix**: Keep `src/templates/codex/skills/<skill-name>/SKILL.md` complete; when removing a skill, delete both `SKILL.md` and the directory.
+**修复**：保持 `src/templates/codex/skills/<skill-name>/SKILL.md` 完整；移除技能时，同时删除 `SKILL.md` 和目录。
 
-### EXCLUDE_PATTERNS missing `.js` in configurator
+### 配置器中 EXCLUDE_PATTERNS 缺少 `.js`
 
-**Symptom**: In production builds (`dist/`), `trellis init` copies compiled `index.js` (and `.js.map`, `.d.ts`) into the user's config directory (e.g., `.gemini/index.js`).
+**症状**：在生产构建（`dist/`）中，`trellis init` 将编译的 `index.js`（以及 `.js.map`、`.d.ts`）复制到用户配置目录（如 `.gemini/index.js`）。
 
-**Cause**: The configurator's `EXCLUDE_PATTERNS` doesn't filter out `.js` files. In development (`src/`), only `.ts` files exist so the issue is invisible. In production, `tsc` compiles `index.ts` → `index.js` into `dist/templates/{platform}/`, and `copyDirFiltered` copies it.
+**原因**：配置器的 `EXCLUDE_PATTERNS` 不过滤 `.js` 文件。在开发（`src/`）中，仅存在 `.ts` 文件，所以问题不可见。在生产中，`tsc` 将 `index.ts` 编译为 `index.js` 到 `dist/templates/{platform}/`，`copyDirFiltered` 复制它。
 
-**Fix**: Ensure `EXCLUDE_PATTERNS` includes `.js`, `.js.map`, `.d.ts`, `.d.ts.map` — matching the Cursor configurator pattern. The Claude configurator correctly excludes these; copy from there.
+**修复**：确保 `EXCLUDE_PATTERNS` 包含 `.js`、`.js.map`、`.d.ts`、`.d.ts.map` — 匹配 Cursor 配置器模式。Claude 配置器正确排除这些；从那里复制。
 
-**Prevention**: When creating a new configurator, copy the full `EXCLUDE_PATTERNS` from an existing one (e.g., `cursor.ts`), don't write from scratch.
+**预防**：创建新配置器时，从现有配置器（如 `cursor.ts`）复制完整的 `EXCLUDE_PATTERNS`，不要从头编写。
 
-### Missing CLI flag or InitOptions field
+### 缺少 CLI 标志或 InitOptions 字段
 
-**Symptom**: `trellis init --{platform}` doesn't work.
+**症状**：`trellis init --{platform}` 不工作。
 
-**Fix**: Add `--{platform}` option in `src/cli/index.ts` and `{platform}?: boolean` in `InitOptions` in `src/commands/init.ts`. These are static declarations that cannot be derived from the registry.
+**修复**：在 `src/cli/index.ts` 中添加 `--{platform}` 选项，在 `src/commands/init.ts` 的 `InitOptions` 中添加 `{platform}?: boolean`。这些是静态声明，无法从注册表派生。
 
-### Template placeholder not resolved in collectTemplates
+### collectTemplates 中模板占位符未解析
 
-**Symptom**: `trellis update` auto-updates platform files on every run, even when nothing changed. The update summary shows hooks/settings as "changed".
+**症状**：`trellis update` 每次运行都自动更新平台文件，即使什么都没更改。更新摘要显示钩子/设置"已更改"。
 
-**Cause**: `configurePlatform()` resolves `{{PYTHON_CMD}}` to `python3`/`python` when writing files during init, but `collectPlatformTemplates()` returns raw templates with `{{PYTHON_CMD}}` unresolved. The hash comparison sees them as different.
+**原因**：`configurePlatform()` 在 init 时写入文件时将 `{{PYTHON_CMD}}` 解析为 `python3`/`python`，但 `collectPlatformTemplates()` 返回带未解析 `{{PYTHON_CMD}}` 的原始模板。哈希比较认为它们不同。
 
-**Fix**: Apply `resolvePlaceholders()` (from `configurators/shared.ts`) in the `collectTemplates` lambda in `PLATFORM_FUNCTIONS`. Any new placeholder added to templates must be resolved in **both** `configure()` and `collectTemplates()`.
+**修复**：在 `PLATFORM_FUNCTIONS` 的 `collectTemplates` lambda 中应用 `configurators/shared.ts` 中的 `resolvePlaceholders()`。添加到模板的任何新占位符必须在 `configure()` 和 `collectTemplates()` 中**都**解析。
 
-### Template listed in update but not created by init
+### 更新中列出的模板但 init 未创建
 
-**Symptom**: `trellis update` always detects a "new file" to add, even on a freshly initialized project with the same version.
+**症状**：`trellis update` 始终检测到"新文件"要添加，即使在同版本新初始化的项目上。
 
-**Cause**: `collectTemplateFiles()` in `update.ts` lists a file that `createSpecTemplates()` / `createWorkflowStructure()` in init never creates. The two template lists are out of sync.
+**原因**：`update.ts` 中的 `collectTemplateFiles()` 列出了 init 中 `createSpecTemplates()` / `createWorkflowStructure()` 从未创建的文件。两个模板列表不同步。
 
-**Fix**: Ensure every file listed in `collectTemplateFiles()` is actually created during `init`. If a file is project-specific (not a user template), do not include it in the update template list.
+**修复**：确保 `collectTemplateFiles()` 中列出的每个文件在 `init` 期间实际创建。如果文件是项目特定的（不是用户模板），不要将其包含在更新模板列表中。
 
-### Project-type-conditional content not gated in init or update
+### 项目类型条件内容未在 init 或 update 中门控
 
-**Symptom**: Pure backend project gets empty frontend spec templates after `trellis init`. After user deletes the unwanted `spec/frontend/` dir, `trellis update` recreates it.
+**症状**：纯后端项目在 `trellis init` 后获得空前端规范模板。用户删除不需要的 `spec/frontend/` 目录后，`trellis update` 重新创建它。
 
-**Cause (init)**: `createSpecTemplates()` in `workflow.ts` received `projectType` but ignored it (parameter named `_projectType`). All project types got both backend and frontend spec dirs.
+**原因（init）**：`workflow.ts` 中的 `createSpecTemplates()` 接收了 `projectType` 但忽略了它（参数名 `_projectType`）。所有项目类型都获得后端和前端规范目录。
 
-**Cause (update)**: `collectTemplateFiles()` in `update.ts` unconditionally included all 13 backend + frontend spec files in the template map, without checking whether `spec/backend/` or `spec/frontend/` actually existed on disk.
+**原因（update）**：`update.ts` 中的 `collectTemplateFiles()` 无条件在模板映射中包含所有 13 个后端 + 前端规范文件，而不检查 `spec/backend/` 或 `spec/frontend/` 是否实际存在于磁盘上。
 
-**Fix (init)**: Use `projectType` to conditionally create spec dirs:
-- `"backend"` → guides + backend only
-- `"frontend"` → guides + frontend only
-- `"fullstack"` / `"unknown"` → guides + both
+**修复（init）**：使用 `projectType` 条件创建规范目录：
+- `"backend"` → 仅指南 + 后端
+- `"frontend"` → 仅指南 + 前端
+- `"fullstack"` / `"unknown"` → 指南 + 两者
 
-**Fix (update)**: Wrap backend/frontend spec file blocks in `fs.existsSync()` checks (same pattern as `getConfiguredPlatforms()` for platform dirs).
+**修复（update）**：用 `fs.existsSync()` 检查包装后端/前端规范文件块（与 `getConfiguredPlatforms()` 检查平台目录相同的模式）。
 
-**Rule**: When init creates content conditionally based on project type, update must check for directory existence before including files in its template map. The two paths must agree.
+**规则**：当 init 根据项目类型条件创建内容时，update 必须在将文件包含到模板映射中之前检查目录存在性。两条路径必须一致。
 
-### iFlow getAllCommands() reads wrong directory level (FIXED)
+### iFlow getAllCommands() 读取错误的目录级别（已修复）
 
-**Symptom**: `trellis update` tracked zero iFlow commands — commands were correctly copied during `init` but not tracked for update diffs.
+**症状**：`trellis update` 跟踪零 iFlow 命令 — init 时命令正确复制，但未跟踪更新差异。
 
-**Cause**: iFlow `getAllCommands()` called `listFiles("commands")` which returned `["trellis"]` (a directory, not `.md` files). Fixed to read `listFiles("commands/trellis")`.
+**原因**：iFlow `getAllCommands()` 调用 `listFiles("commands")` 返回 `["trellis"]`（一个目录，不是 `.md` 文件）。修复为读取 `listFiles("commands/trellis")`。
 
-**Status**: Fixed — `getAllCommands()` now reads from correct subdirectory.
+**状态**：已修复 — `getAllCommands()` 现在从正确的子目录读取。
 
-### PRD assumed platform capabilities without research
+### PRD 假设平台能力未经研究
 
-**Symptom**: Implementation builds the wrong abstraction (e.g., commands instead of skills, or vice versa). Requires major rework after discovery.
+**症状**：实现构建了错误的抽象（例如，命令而非技能，或反之）。发现后需要重大返工。
 
-**Cause**: PRD was written based on assumptions about how a platform works (e.g., "Trae uses commands like Kilo") without verifying against official documentation or GitHub repos.
+**原因**：PRD 基于对平台工作方式的假设编写（例如，"Trae 像 Kilo 一样使用命令"），而未验证官方文档或 GitHub 仓库。
 
-**Fix**: Before writing the PRD for a new platform, research the platform's actual extension mechanism:
-- Check official docs for supported formats (skills, commands, rules, workflows)
-- Check the platform's GitHub repo for directory structure conventions
-- Verify how users invoke extensions (slash command, AI-automatic matching, manual mention)
+**修复**：为新平台编写 PRD 之前，研究平台的实际扩展机制：
+- 检查官方文档了解支持的格式（技能、命令、规则、工作流）
+- 检查平台 GitHub 仓库了解目录结构约定
+- 验证用户如何调用扩展（斜杠命令、AI自动匹配、手动提及）
 
-**Prevention**: Add a "Research" step before PRD finalization. The PRD should cite sources for platform capability claims.
+**预防**：在 PRD 定稿前添加"研究"步骤。PRD 应引用平台能力声明的来源。
 
-### Added IDE-only platform to multi-agent --platform choices
+### 将仅 IDE 平台添加到多代理 --platform 选项
 
-**Symptom**: `python3 plan.py --platform {platform}` accepts the value but fails at `build_run_command()` because the platform has no CLI executable.
+**症状**：`python3 plan.py --platform {platform}` 接受值但在 `build_run_command()` 失败，因为平台没有 CLI 可执行文件。
 
-**Cause**: Platform was added to `plan.py`/`start.py` `--platform` choices without checking if it supports CLI agents. IDE-only platforms (e.g., Trae, Codex, Kiro) cannot run headless CLI agents.
+**原因**：平台被添加到 `plan.py`/`start.py` 的 `--platform` 选项，而未检查是否支持 CLI 代理。仅 IDE 平台（如 Trae、Codex、Kiro）无法运行无头 CLI 代理。
 
-**Fix**: Only add platforms to `--platform` choices in `plan.py`/`start.py` if they have `supports_cli_agents: true` (i.e., `build_run_command` does NOT raise `ValueError`).
+**修复**：仅当平台有 `supports_cli_agents: true`（即 `build_run_command` 不抛出 `ValueError`）时才将平台添加到 `plan.py`/`start.py` 的 `--platform` 选项。
 
-**Rule**: The `--platform` choices in multi-agent scripts should match platforms where `build_run_command()` returns a valid command, not all platforms in the registry.
+**规则**：多代理脚本中的 `--platform` 选项应与 `build_run_command()` 返回有效命令的平台匹配，而非注册表中的所有平台。
 
-### Updated command content but forgot other platforms
+### 更新命令内容但忘记其他平台
 
-**Symptom**: After updating `record-session.md` in Claude's template, other platforms (iFlow, Kilo, OpenCode, Gemini) still use old content (e.g., missing `--mode record` flag, outdated command reference table).
+**症状**：在 Claude 模板中更新 `record-session.md` 后，其他平台（iFlow、Kilo、OpenCode、Gemini）仍使用旧内容（如缺少 `--mode record` 标志、过时的命令参考表）。
 
-**Cause**: Command templates with identical content exist across multiple platforms. Updating one platform's version without syncing others leaves them inconsistent.
+**原因**：相同内容的命令模板存在于多个平台。更新一个平台的版本而未同步其他平台使它们不一致。
 
-**Fix**: After modifying any command template content, check ALL platforms that have the same command:
+**修复**：修改任何命令模板内容后，检查具有相同命令的**所有**平台：
 
 ```bash
-# Find all platforms with this command
+# 找到具有此命令的所有平台
 find src/templates/*/commands/trellis/ -name "record-session.*"
 ```
 
-**Key distinction**:
-- "Add new command to all platforms" → covered by the Required Commands table above
-- "Update existing command content across platforms" → THIS mistake. Content changes (new flags, rewritten steps, updated reference tables) must propagate to every platform's copy.
+**关键区别**：
+- "向所有平台添加新命令" → 由上面的必需命令表覆盖
+- "跨平台更新现有命令内容" → 这个错误。内容更改（新标志、重写步骤、更新参考表）必须传播到每个平台的副本。
 
-**Note**: Gemini uses `.toml` format — content must be adapted (triple-quoted strings, `\\` line continuations). All other platforms use `.md`.
+**注意**：Gemini 使用 `.toml` 格式 — 内容必须适应（三引号字符串、`\\` 行连续）。其他所有平台使用 `.md`。
 
-### Stale platform references in copied templates
+### 复制模板中的过时平台引用
 
-**Symptom**: A Qoder skill references "Claude Code" syntax or a Kiro-specific invocation pattern.
+**症状**：Qoder 技能引用"Claude Code"语法或 Kiro 特定调用模式。
 
-**Cause**: When creating templates for a new platform by copying from an existing one, platform-specific references (command syntax, platform names, invocation instructions) weren't updated.
+**原因**：从现有平台复制创建模板时，平台特定引用（命令语法、平台名称、调用指令）未更新。
 
-**Fix**: After copying templates, search-and-replace all references to the source platform. Check for:
-- Platform name mentions (e.g., "Claude Code", "Kiro")
-- Command invocation syntax (e.g., `/trellis:xxx` vs `$skill-name`)
-- Config directory references (e.g., `.claude/` vs `.qoder/`)
-
-
-
-**Symptom**: `trellis update` creates iFlow commands at `.iflow/commands/{name}.md` (flat) instead of `.iflow/commands/trellis/{name}.md` (correct).
-
-**Cause**: When commands migrated from flat to `trellis/` subdirectory, `configure()` uses recursive directory copy (automatically correct), but `collectTemplates()` manually constructs paths with `files.set()` (requires manual update). The iFlow `collectTemplates` was not updated — it produced `.iflow/commands/${cmd.name}.md` instead of `.iflow/commands/trellis/${cmd.name}.md`.
-
-**Fix**: Add `trellis/` to the path in iFlow's `collectTemplates` (line 111 of `configurators/index.ts`).
-
-**Design insight**: `configure()` and `collectTemplates()` use asymmetric mechanisms to produce the same file set — one recursive copies a directory tree, the other manually lists `files.set()` calls. This asymmetry makes path drift likely during structural migrations. When migrating directory structures, always check both paths.
-
-**Regression test**: `regression.test.ts` now verifies all platforms with commands use `/commands/trellis/` in their `collectTemplates` paths.
+**修复**：复制模板后，搜索并替换所有对源平台的引用。检查：
+- 平台名称提及（如"Claude Code"、"Kiro"）
+- 命令调用语法（如 `/trellis:xxx` vs `$skill-name`）
+- 配置目录引用（如 `.claude/` vs `.qoder/`）
 
 ---
 
-## Reference PRs
+### iFlow collectTemplates 路径漂移
 
-| PR | Platform | Pattern | Notes |
+**症状**：`trellis update` 在 `.iflow/commands/{name}.md`（平面）创建 iFlow 命令，而非 `.iflow/commands/trellis/{name}.md`（正确）。
+
+**原因**：当命令从平面迁移到 `trellis/` 子目录时，`configure()` 使用递归目录复制（自动正确），但 `collectTemplates()` 使用 `files.set()` 手动构造路径（需要手动更新）。iFlow 的 `collectTemplates` 未更新 — 它生成 `.iflow/commands/${cmd.name}.md` 而非 `.iflow/commands/trellis/${cmd.name}.md`。
+
+**修复**：在 iFlow 的 `collectTemplates`（`configurators/index.ts` 第 111 行）的路径中添加 `trellis/`。
+
+**设计洞察**：`configure()` 和 `collectTemplates()` 使用不对称机制产生相同的文件集 — 一个递归复制目录树，另一个手动列出 `files.set()` 调用。这种不对称使得结构迁移期间路径漂移成为可能。迁移目录结构时，始终检查两条路径。
+
+**回归测试**：`regression.test.ts` 现在验证所有带命令的平台在其 `collectTemplates` 路径中使用 `/commands/trellis/`。
+
+---
+
+## 参考 PR
+
+| PR | 平台 | 模式 | 备注 |
 |----|----------|---------|-------|
-| #22 | iFlow CLI | Standard (hooks + agents) | Full platform with Python hooks |
-| feat/gemini branch | Gemini CLI | TOML commands-only | First non-Markdown command format, Cursor-level minimal |
-| main | Antigravity | Workflows (derived from Codex) | No physical templates — runtime adaptation from Codex skills |
-| #71 | Qoder | Skills (like Codex/Kiro) | Skills with YAML frontmatter; Trae was dropped (IDE-only, no deterministic invocation trigger) |
+| #22 | iFlow CLI | 标准（钩子 + 代理）| 完整平台带 Python 钩子 |
+| feat/gemini branch | Gemini CLI | TOML 命令仅 | 第一个非 Markdown 命令格式，Cursor 级最小 |
+| main | Antigravity | 工作流（从 Codex 派生）| 无物理模板 — 从 Codex 技能运行时适配 |
+| #71 | Qoder | 技能（像 Codex/Kiro）| 带 YAML frontmatter 的技能；Trae 被放弃（仅 IDE，无确定性调用触发）|

@@ -1,134 +1,134 @@
 ---
 name: finish-work
-description: "Finish Work - Pre-Commit Checklist"
+description: "完成工作 - 提交前检查清单"
 ---
 
-# Finish Work - Pre-Commit Checklist
+# 完成工作 - 提交前检查清单
 
-Before submitting or committing, use this checklist to ensure work completeness.
+在提交或推送之前，使用此检查清单确保工作完整性。
 
-**Timing**: After code is written and tested, before commit
+**时机**：代码编写和测试完成后，提交前
 
 ---
 
-## Checklist
+## 检查清单
 
-### 1. Code Quality
+### 1. 代码质量
 
 ```bash
-# Must pass
+# 必须通过
 pnpm lint
 pnpm type-check
 pnpm test
 ```
 
-- [ ] `pnpm lint` passes with 0 errors?
-- [ ] `pnpm type-check` passes with no type errors?
-- [ ] Tests pass?
-- [ ] No `console.log` statements (use logger)?
-- [ ] No non-null assertions (the `x!` operator)?
-- [ ] No `any` types?
+- [ ] `pnpm lint` 通过，0 错误？
+- [ ] `pnpm type-check` 通过，无类型错误？
+- [ ] 测试通过？
+- [ ] 没有 `console.log` 语句（使用 logger）？
+- [ ] 没有非空断言（`x!` 操作符）？
+- [ ] 没有 `any` 类型？
 
-### 2. Documentation Sync
+### 2. 文档同步
 
-**Structure Docs**:
-- [ ] Does `.trellis/spec/backend/` need updates?
-  - New patterns, new modules, new conventions
-- [ ] Does `.trellis/spec/frontend/` need updates?
-  - New components, new hooks, new patterns
-- [ ] Does `.trellis/spec/guides/` need updates?
-  - New cross-layer flows, lessons from bugs
+**结构文档**：
+- [ ] `.trellis/spec/backend/` 需要更新吗？
+  - 新模式、新模块、新约定
+- [ ] `.trellis/spec/frontend/` 需要更新吗？
+  - 新组件、新 hook、新模式
+- [ ] `.trellis/spec/guides/` 需要更新吗？
+  - 新跨层流程、bug 经验教训
 
-**Key Question**: 
-> "If I fixed a bug or discovered something non-obvious, should I document it so future me (or others) won't hit the same issue?"
+**关键问题**：
+> "如果我修复了一个 bug 或发现了非显而易见的东西，我应该记录下来，这样未来的我（或其他人）不会遇到同样的问题吗？"
 
-If YES -> Update the relevant spec doc.
+如果是 → 更新相关规范文档。
 
-### 3. API Changes
+### 3. API 变更
 
-If you modified API endpoints:
+如果修改了 API 端点：
 
-- [ ] Input schema updated?
-- [ ] Output schema updated?
-- [ ] API documentation updated?
-- [ ] Client code updated to match?
+- [ ] 输入模式更新了？
+- [ ] 输出模式更新了？
+- [ ] API 文档更新了？
+- [ ] 客户端代码更新以匹配？
 
-### 4. Database Changes
+### 4. 数据库变更
 
-If you modified database schema:
+如果修改了数据库模式：
 
-- [ ] Migration file created?
-- [ ] Schema file updated?
-- [ ] Related queries updated?
-- [ ] Seed data updated (if applicable)?
+- [ ] 迁移文件创建了？
+- [ ] 模式文件更新了？
+- [ ] 相关查询更新了？
+- [ ] 种子数据更新了（如适用）？
 
-### 5. Cross-Layer Verification
+### 5. 跨层验证
 
-If the change spans multiple layers:
+如果变更跨越多层：
 
-- [ ] Data flows correctly through all layers?
-- [ ] Error handling works at each boundary?
-- [ ] Types are consistent across layers?
-- [ ] Loading states handled?
+- [ ] 数据在各层之间正确流转？
+- [ ] 错误处理在各边界正常工作？
+- [ ] 类型在各层之间一致？
+- [ ] 加载状态处理了？
 
-### 6. Manual Testing
+### 6. 手动测试
 
-- [ ] Feature works in browser/app?
-- [ ] Edge cases tested?
-- [ ] Error states tested?
-- [ ] Works after page refresh?
+- [ ] 功能在浏览器/应用中正常？
+- [ ] 边缘情况测试了？
+- [ ] 错误状态测试了？
+- [ ] 页面刷新后正常？
 
 ---
 
-## Quick Check Flow
+## 快速检查流程
 
 ```bash
-# 1. Code checks
+# 1. 代码检查
 pnpm lint && pnpm type-check
 
-# 2. View changes
+# 2. 查看变更
 git status
 git diff --name-only
 
-# 3. Based on changed files, check relevant items above
+# 3. 根据变更的文件，检查上述相关项目
 ```
 
 ---
 
-## Common Oversights
+## 常见遗漏
 
-| Oversight | Consequence | Check |
+| 遗漏 | 后果 | 检查 |
 |-----------|-------------|-------|
-| Structure docs not updated | Others don't know the change | Check .trellis/spec/ |
-| Migration not created | Schema out of sync | Check db/migrations/ |
-| Types not synced | Runtime errors | Check shared types |
-| Tests not updated | False confidence | Run full test suite |
-| Console.log left in | Noisy production logs | Search for console.log |
+| 结构文档未更新 | 其他人不知道变更 | 检查 .trellis/spec/ |
+| 迁移未创建 | 模式不同步 | 检查 db/migrations/ |
+| 类型未同步 | 运行时错误 | 检查共享类型 |
+| 测试未更新 | 虚假信心 | 运行完整测试套件 |
+| console.log 留下 | 生产日志噪音 | 搜索 console.log |
 
 ---
 
-## Relationship to Other Commands
+## 与其他命令的关系
 
 ```
-Development Flow:
-  Write code -> Test -> $finish-work -> git commit -> $record-session
+开发流程：
+  写代码 -> 测试 -> $finish-work -> git commit -> $record-session
                           |                              |
-                   Ensure completeness              Record progress
-                   
-Debug Flow:
-  Hit bug -> Fix -> $break-loop -> Knowledge capture
+                   确保完整性                      记录进度
+
+调试流程：
+  遇到 bug -> 修复 -> $break-loop -> 知识捕获
                        |
-                  Deep analysis
+                  深度分析
 ```
 
-- `$finish-work` - Check work completeness (this skill)
-- `$record-session` - Record session and commits
-- `$break-loop` - Deep analysis after debugging
+- `$finish-work` - 检查工作完整性（此 skill）
+- `$record-session` - 记录会话和提交
+- `$break-loop` - 调试后深度分析
 
 ---
 
-## Core Principle
+## 核心原则
 
-> **Delivery includes not just code, but also documentation, verification, and knowledge capture.**
+> **交付不仅包括代码，还包括文档、验证和知识捕获。**
 
-Complete work = Code + Docs + Tests + Verification
+完成的工作 = 代码 + 文档 + 测试 + 验证

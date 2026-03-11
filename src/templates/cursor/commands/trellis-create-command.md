@@ -1,72 +1,72 @@
-# Create New Slash Command
+# 创建新斜杠命令
 
-Create a new slash command in both `.cursor/commands/` (with `trellis-` prefix) and `.claude/commands/trellis/` directories based on user requirements.
+根据用户需求，在 `.cursor/commands/`（带有 `trellis-` 前缀）和 `.claude/commands/trellis/` 目录中创建新的斜杠命令。
 
-## Usage
+## 使用方法
 
 ```
 /trellis-create-command <command-name> <description>
 ```
 
-**Example**:
+**示例**：
 ```
 /trellis-create-command review-pr Check PR code changes against project guidelines
 ```
 
-## Execution Steps
+## 执行步骤
 
-### 1. Parse Input
+### 1. 解析输入
 
-Extract from user input:
-- **Command name**: Use kebab-case (e.g., `review-pr`)
-- **Description**: What the command should accomplish
+从用户输入中提取：
+- **命令名称**：使用 kebab-case（例如 `review-pr`）
+- **描述**：命令应该完成什么
 
-### 2. Analyze Requirements
+### 2. 分析需求
 
-Determine command type based on description:
-- **Initialization**: Read docs, establish context
-- **Pre-development**: Read guidelines, check dependencies
-- **Code check**: Validate code quality and guideline compliance
-- **Recording**: Record progress, questions, structure changes
-- **Generation**: Generate docs, code templates
+根据描述确定命令类型：
+- **初始化**：阅读文档，建立上下文
+- **开发前**：阅读指南，检查依赖
+- **代码检查**：验证代码质量和指南合规性
+- **记录**：记录进度、问题、结构变更
+- **生成**：生成文档、代码模板
 
-### 3. Generate Command Content
+### 3. 生成命令内容
 
-Based on command type, generate appropriate content:
+根据命令类型生成适当的内容：
 
-**Simple command** (1-3 lines):
+**简单命令**（1-3 行）：
 ```markdown
-Concise instruction describing what to do
+简明描述要做什么
 ```
 
-**Complex command** (with steps):
+**复杂命令**（带步骤）：
 ```markdown
-# Command Title
+# 命令标题
 
-Command description
+命令描述
 
-## Steps
+## 步骤
 
-### 1. First Step
-Specific action
+### 1. 第一步
+具体操作
 
-### 2. Second Step
-Specific action
+### 2. 第二步
+具体操作
 
-## Output Format (if needed)
+## 输出格式（如需要）
 
-Template
+模板
 ```
 
-### 4. Create Files
+### 4. 创建文件
 
-Create in both directories:
+在两个目录中创建：
 - `.cursor/commands/trellis-<command-name>.md`
 - `.claude/commands/trellis/<command-name>.md`
 
-### 5. Confirm Creation
+### 5. 确认创建
 
-Output result:
+输出结果：
 ```
 [OK] Created Slash Command: /<command-name>
 
@@ -81,74 +81,74 @@ Description:
 <description>
 ```
 
-## Command Content Guidelines
+## 命令内容指南
 
-### [OK] Good command content
+### [OK] 好的命令内容
 
-1. **Clear and concise**: Immediately understandable
-2. **Executable**: AI can follow steps directly
-3. **Well-scoped**: Clear boundaries of what to do and not do
-4. **Has output**: Specifies expected output format (if needed)
+1. **清晰简洁**：立即可理解
+2. **可执行**：AI 可以直接按照步骤执行
+3. **范围明确**：清楚要做什么和不做什么的边界
+4. **有输出**：指定预期的输出格式（如需要）
 
-### [X] Avoid
+### [X] 避免
 
-1. **Too vague**: e.g., "optimize code"
-2. **Too complex**: Single command should not exceed 100 lines
-3. **Duplicate functionality**: Check if similar command exists first
+1. **太模糊**：例如"优化代码"
+2. **太复杂**：单个命令不应超过 100 行
+3. **重复功能**：先检查是否存在类似命令
 
-## Naming Conventions
+## 命名约定
 
-| Command Type | Prefix | Example |
-|--------------|--------|---------|
-| Session Start | `start` | `start` |
-| Pre-development | `before-` | `before-frontend-dev` |
-| Check | `check-` | `check-frontend` |
-| Record | `record-` | `record-session` |
-| Generate | `generate-` | `generate-api-doc` |
-| Update | `update-` | `update-changelog` |
-| Other | Verb-first | `review-code`, `sync-data` |
+| 命令类型 | 前缀 | 示例 |
+|--------------|---------|---------|
+| 会话开始 | `start` | `start` |
+| 开发前 | `before-` | `before-frontend-dev` |
+| 检查 | `check-` | `check-frontend` |
+| 记录 | `record-` | `record-session` |
+| 生成 | `generate-` | `generate-api-doc` |
+| 更新 | `update-` | `update-changelog` |
+| 其他 | 动词优先 | `review-code`, `sync-data` |
 
-## Example
+## 示例
 
-### Input
+### 输入
 ```
 /trellis-create-command review-pr Check PR code changes against project guidelines
 ```
 
-### Generated Command Content
+### 生成的命令内容
 ```markdown
-# PR Code Review
+# PR 代码审查
 
-Check current PR code changes against project guidelines.
+检查当前 PR 代码变更是否符合项目指南。
 
-## Steps
+## 步骤
 
-### 1. Get Changed Files
+### 1. 获取变更的文件
 ```bash
 git diff main...HEAD --name-only
 ```
 
-### 2. Categorized Review
+### 2. 分类审查
 
-**Frontend files** (`apps/web/`):
-- Reference `.trellis/spec/frontend/index.md`
+**前端文件** (`apps/web`)：
+- 参考 `.trellis/spec/frontend/index.md`
 
-**Backend files** (`packages/api/`):
-- Reference `.trellis/spec/backend/index.md`
+**后端文件** (`packages/api`)：
+- 参考 `.trellis/spec/backend/index.md`
 
-### 3. Output Review Report
+### 3. 输出审查报告
 
-Format:
+格式：
 
-## PR Review Report
+## PR 审查报告
 
-### Changed Files
-- [file list]
+### 变更的文件
+- [文件列表]
 
-### Check Results
-- [OK] Passed items
-- [X] Issues found
+### 检查结果
+- [OK] 通过的项目
+- [X] 发现的问题
 
-### Suggestions
-- [improvement suggestions]
+### 建议
+- [改进建议]
 ```

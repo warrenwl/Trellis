@@ -1,18 +1,18 @@
 <!-- TRELLIS:START -->
-# Trellis Instructions
+# Trellis 指令
 
-These instructions are for AI assistants working in this project.
+这些指令适用于在本项目中工作的 AI 助手。
 
-Use the `/trellis:start` command when starting a new session to:
-- Initialize your developer identity
-- Understand current project context
-- Read relevant guidelines
+使用 `/trellis:start` 命令启动新会话时：
+- 初始化您的开发者身份
+- 了解当前项目上下文
+- 阅读相关指南
 
-Use `@/.trellis/` to learn:
-- Development workflow (`workflow.md`)
-- Project structure guidelines (`spec/`)
-- Developer workspace (`workspace/`)
+使用 `@/.trellis/` 了解：
+- 开发工作流 (`workflow.md`)
+- 项目结构指南 (`spec/`)
+- 开发者工作区 (`workspace/`)
 
-Keep this managed block so 'trellis update' can refresh the instructions.
+请保留此托管块，以便 'trellis update' 可以刷新指令。
 
 <!-- TRELLIS:END -->

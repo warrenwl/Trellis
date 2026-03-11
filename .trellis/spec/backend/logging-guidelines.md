@@ -1,39 +1,39 @@
-# Logging Guidelines
+# 日志指南
 
-> How console output and logging is done in this CLI project.
-
----
-
-## Overview
-
-This CLI project uses **chalk** for colored console output. Since this is a user-facing CLI tool, we use `console.log()` and `console.error()` directly rather than a structured logging library. Output follows consistent color conventions to help users quickly understand the nature of each message.
+> 本 CLI 项目中控制台输出和日志的实现方式。
 
 ---
 
-## Color Conventions
+## 概述
 
-| Color | Chalk Method | Usage | Example |
+本 CLI 项目使用 **chalk** 进行彩色控制台输出。由于这是一个面向用户的 CLI 工具，我们直接使用 `console.log()` 和 `console.error()`，而不是结构化日志库。输出遵循一致的颜色约定，帮助用户快速理解每条消息的性质。
+
+---
+
+## 颜色约定
+
+| 颜色 | Chalk 方法 | 用途 | 示例 |
 |-------|--------------|-------|---------|
-| **Cyan** | `chalk.cyan()` | Headers, banners, section titles | `"Next steps:"` |
-| **Blue** | `chalk.blue()` | Action in progress, step indicators | `"Creating workflow structure..."` |
-| **Green** | `chalk.green()` | Success messages | `"Trellis initialized successfully!"` |
-| **Yellow** | `chalk.yellow()` | Warnings, coming soon, skipped items | `"Coming soon: update command"` |
-| **Red** | `chalk.red()` | Errors | `"Error:"` prefix |
-| **Gray** | `chalk.gray()` | Secondary info, hints, paths | Descriptions, file paths |
-| **White** | `chalk.white()` | Highlighted inline text | Commands to run |
+| **青色** | `chalk.cyan()` | 标题、横幅、章节标题 | `"Next steps:"` |
+| **蓝色** | `chalk.blue()` | 进行中的操作、步骤指示器 | `"Creating workflow structure..."` |
+| **绿色** | `chalk.green()` | 成功消息 | `"Trellis initialized successfully!"` |
+| **黄色** | `chalk.yellow()` | 警告、即将推出、跳过的项目 | `"Coming soon: update command"` |
+| **红色** | `chalk.red()` | 错误 | `"Error:"` 前缀 |
+| **灰色** | `chalk.gray()` | 次要信息、提示、路径 | 描述、文件路径 |
+| **白色** | `chalk.white()` | 内联高亮文本 | 要运行的命令 |
 
 ---
 
-## Message Patterns
+## 消息模式
 
-### Section Headers (Cyan)
+### 章节标题（青色）
 
 ```typescript
 console.log(chalk.cyan("Next steps:"));
 console.log(chalk.cyan("Generated structure files:"));
 ```
 
-### Progress Steps (Blue with Emoji)
+### 进度步骤（蓝色带表情符号）
 
 ```typescript
 console.log(chalk.blue("📁 Creating workflow structure..."));
@@ -42,20 +42,20 @@ console.log(chalk.blue("🤖 Configuring Multi-Agent Pipeline..."));
 console.log(chalk.blue("📄 Created init-agent.md"));
 ```
 
-### Sub-steps (Gray with Indentation)
+### 子步骤（灰色带缩进）
 
 ```typescript
 console.log(chalk.gray("   - Creating agent configurations..."));
 console.log(chalk.gray("   - Creating hook configurations..."));
 ```
 
-### Success (Green with Emoji)
+### 成功（绿色带表情符号）
 
 ```typescript
 console.log(chalk.green("\n✅ Trellis initialized successfully!\n"));
 ```
 
-### Warnings (Yellow with Emoji)
+### 警告（黄色带表情符号）
 
 ```typescript
 console.log(chalk.yellow("Coming soon: update command"));
@@ -63,7 +63,7 @@ console.log(chalk.yellow("No tools selected. At least one tool is required."));
 console.log(chalk.yellow(`⚠️  Failed to initialize developer: ${message}`));
 ```
 
-### Errors (Red)
+### 错误（红色）
 
 ```typescript
 console.error(
@@ -72,14 +72,14 @@ console.error(
 );
 ```
 
-### Informational (Mixed Colors)
+### 信息性（混合颜色）
 
 ```typescript
-// Key-value pairs
+// 键值对
 console.log(chalk.blue("👤 Developer:"), chalk.gray(developerName));
 console.log(chalk.blue("🔍 Project type:"), chalk.gray(projectDescription));
 
-// Instructions with highlighted commands
+// 带高亮命令的说明
 console.log(
   chalk.gray(`${stepNum}. Use `) +
   chalk.white("/trellis:start") +
@@ -89,45 +89,45 @@ console.log(
 
 ---
 
-## Output Structure
+## 输出结构
 
-### Banner and Introduction
+### 横幅和介绍
 
 ```typescript
-// ASCII art banner (cyan)
+// ASCII 艺术横幅（青色）
 const banner = figlet.textSync("Trellis", { font: "Rebel" });
 console.log(chalk.cyan(`\n${banner.trimEnd()}`));
 
-// Tagline (gray)
+// 标语（灰色）
 console.log(chalk.gray("\n  AI-assisted development workflow framework\n"));
 ```
 
-### Progress Output
+### 进度输出
 
 ```typescript
-// Mode indicator
+// 模式指示器
 console.log(chalk.gray("Mode: Force overwrite existing files\n"));
 
-// Detection results
+// 检测结果
 console.log(chalk.blue("👤 Developer:"), chalk.gray(developerName));
 console.log(chalk.blue("🔍 Project type:"), chalk.gray(description));
 
-// Configuration summary
+// 配置摘要
 console.log(chalk.gray(`\nConfiguring: ${tools.join(", ")}`));
 console.log(chalk.gray(`Project type: ${typeDescription}\n`));
 
-// Step progress
+// 步骤进度
 console.log(chalk.blue("📁 Creating workflow structure..."));
 console.log(chalk.blue("📝 Configuring Cursor commands..."));
 ```
 
-### Completion Summary
+### 完成摘要
 
 ```typescript
-// Success message
+// 成功消息
 console.log(chalk.green("\n✅ Trellis initialized successfully!\n"));
 
-// Next steps
+// 下一步
 console.log(chalk.cyan("Next steps:"));
 console.log(
   chalk.gray(`1. Use `) +
@@ -135,100 +135,100 @@ console.log(
   chalk.gray(" command in your AI tool"),
 );
 
-// Generated files
+// 生成的文件
 console.log(chalk.cyan("Generated structure files:"));
 console.log(chalk.gray(`  ${PATHS.STRUCTURE}/guides/   - Thinking guides`));
 ```
 
 ---
 
-## Emoji Usage
+## 表情符号使用
 
-| Emoji | Usage |
+| 表情符号 | 用途 |
 |-------|-------|
-| 📁 | Directory/folder operations |
-| 📝 | Configuration/file writing |
-| 📄 | Single file creation |
-| 🤖 | AI/agent related |
-| 👤 | User/developer related |
-| 🔍 | Detection/analysis |
-| ✅ | Success completion |
-| ⚠️ | Warnings |
+| 📁 | 目录/文件夹操作 |
+| 📝 | 配置/文件写入 |
+| 📄 | 单文件创建 |
+| 🤖 | AI/代理相关 |
+| 👤 | 用户/开发者相关 |
+| 🔍 | 检测/分析 |
+| ✅ | 成功完成 |
+| ⚠️ | 警告 |
 
 ---
 
-## Indentation
+## 缩进
 
-Use indentation to show hierarchy:
+使用缩进显示层次结构：
 
 ```typescript
-// Top level (no indent)
+// 顶级（无缩进）
 console.log(chalk.blue("🤖 Configuring Multi-Agent Pipeline..."));
 
-// Sub-level (3 spaces + dash)
+// 子级（3 空格 + 短横线）
 console.log(chalk.gray("   - Creating agent configurations..."));
 console.log(chalk.gray("   - Creating hook configurations..."));
 
-// File listings (2 spaces)
+// 文件列表（2 空格）
 console.log(chalk.gray(`  ${PATHS.STRUCTURE}/guides/   - Thinking guides`));
 console.log(chalk.gray(`  ${PATHS.STRUCTURE}/frontend/ - Frontend guidelines`));
 ```
 
 ---
 
-## DO / DON'T
+## 做法 / 不做
 
-### DO
+### 做法
 
-- Use `chalk` for all colored output
-- Follow the color convention consistently
-- Use emojis for visual scanning (sparingly)
-- Use indentation to show hierarchy
-- Add blank lines between sections for readability
-- Use `console.error()` for errors
+- 对所有彩色输出使用 `chalk`
+- 一致地遵循颜色约定
+- 为视觉扫描使用表情符号（适度）
+- 使用缩进显示层次结构
+- 在各节之间添加空行以提高可读性
+- 错误使用 `console.error()`
 
-### DON'T
+### 不做
 
-- Don't use raw ANSI escape codes
-- Don't mix color meanings (e.g., red for non-error)
-- Don't overuse emojis
-- Don't log sensitive information (paths with usernames excepted for context)
-- Don't use `console.log()` for errors (use `console.error()`)
-- Don't output debug information in production
+- 不要使用原始 ANSI 转义码
+- 不要混合颜色含义（例如，非错误用红色）
+- 不要过度使用表情符号
+- 不要记录敏感信息（除上下文需要的用户名路径外）
+- 不要对错误使用 `console.log()`（使用 `console.error()`）
+- 不要在生产环境中输出调试信息
 
 ---
 
-## Examples
+## 示例
 
-### Complete Init Output Flow
+### 完整初始化输出流程
 
 ```typescript
-// 1. Banner
+// 1. 横幅
 console.log(chalk.cyan(`\n${banner.trimEnd()}`));
 console.log(chalk.gray("\n  AI-assisted development workflow framework\n"));
 
-// 2. Mode (if special mode)
+// 2. 模式（如果特殊模式）
 if (options.force) {
   console.log(chalk.gray("Mode: Force overwrite existing files\n"));
 }
 
-// 3. Detection results
+// 3. 检测结果
 console.log(chalk.blue("👤 Developer:"), chalk.gray(developerName));
 console.log(chalk.blue("🔍 Project type:"), chalk.gray(typeDescription));
 
-// 4. Configuration summary
+// 4. 配置摘要
 console.log(chalk.gray(`\nConfiguring: ${tools.join(", ")}\n`));
 
-// 5. Progress steps
+// 5. 进度步骤
 console.log(chalk.blue("📁 Creating workflow structure..."));
 console.log(chalk.blue("📝 Configuring Cursor commands..."));
 console.log(chalk.blue("🤖 Configuring Multi-Agent Pipeline..."));
 console.log(chalk.gray("   - Creating agent configurations..."));
 
-// 6. Success
+// 6. 成功
 console.log(chalk.green("\n✅ Trellis initialized successfully!\n"));
 
-// 7. Next steps
+// 7. 下一步
 console.log(chalk.cyan("Next steps:"));
 console.log(
   chalk.gray("1. Use ") +
@@ -237,7 +237,7 @@ console.log(
 );
 ```
 
-### Error Output
+### 错误输出
 
 ```typescript
 try {
@@ -251,16 +251,16 @@ try {
 }
 ```
 
-### Warning Output
+### 警告输出
 
 ```typescript
-// Non-critical warning
+// 非关键警告
 console.log(
   chalk.yellow(
     `⚠️  Failed to initialize developer: ${message}`,
   ),
 );
 
-// Coming soon feature
+// 即将推出的功能
 console.log(chalk.yellow("Coming soon: update command"));
 ```

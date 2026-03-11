@@ -1,290 +1,290 @@
 ---
 name: update-spec
-description: "Update Code-Spec - Capture Executable Contracts"
+description: "更新代码规范 - 捕获可执行契约"
 ---
 
-# Update Spec - Capture Knowledge into Specifications
+# 更新规范 - 将知识捕获到规范中
 
-When you learn something valuable (from debugging, implementing, or discussion), use this command to update the relevant spec documents.
+当你从调试、实施或讨论中学到有价值的东西时，使用此命令更新相关规范文档。
 
-**Timing**: After completing a task, fixing a bug, or discovering a new pattern
+**时机**：完成任务后、修复 bug 后、或发现新模式后
 
 ---
 
-## When to Update Specs
+## 何时更新规范
 
-| Trigger | Example | Target Spec |
+| 触发条件 | 示例 | 目标规范 |
 |---------|---------|-------------|
-| **Implemented a feature** | Added template download with giget | Relevant `backend/` or `frontend/` file |
-| **Made a design decision** | Used type field + mapping table for extensibility | Relevant spec + "Design Decisions" section |
-| **Fixed a bug** | Found a subtle issue with error handling | `backend/error-handling.md` |
-| **Discovered a pattern** | Found a better way to structure code | Relevant `backend/` or `frontend/` file |
-| **Hit a gotcha** | Learned that X must be done before Y | Relevant spec + "Common Mistakes" section |
-| **Established a convention** | Team agreed on naming pattern | `quality-guidelines.md` |
-| **New thinking trigger** | "Don't forget to check X before doing Y" | `guides/*.md` (as a checklist item, not detailed rules) |
+| **实施了功能** | 使用 giget 添加模板下载 | 相关 `backend/` 或 `frontend/` 文件 |
+| **做了设计决策** | 为可扩展性使用类型字段 + 映射表 | 相关规范 + "设计决策" 部分 |
+| **修复了 bug** | 发现错误处理的微妙问题 | `backend/error-handling.md` |
+| **发现了模式** | 找到更好的代码结构方式 | 相关 `backend/` 或 `frontend/` 文件 |
+| **遇到陷阱** | 了解到 X 必须在 Y 之前做 | 相关规范 + "常见错误" 部分 |
+| **建立了约定** | 团队同意命名模式 | `quality-guidelines.md` |
+| **新思考触发** | "在做 Y 之前不要忘记检查 X" | `guides/*.md`（作为检查清单项，而非详细规则） |
 
-**Key Insight**: Spec updates are NOT just for problems. Every feature implementation contains design decisions and project conventions that future AI/developers need to know.
+**关键洞察**：规范更新不仅针对问题。每个功能实施都包含未来 AI/开发者需要知道的设计决策和项目约定。
 
 ---
 
-## Spec Structure Overview
+## 规范结构概述
 
 ```
 .trellis/spec/
-├── backend/           # Backend coding standards
-│   ├── index.md       # Overview and links
-│   └── *.md           # Topic-specific guidelines
-├── frontend/          # Frontend coding standards
-│   ├── index.md       # Overview and links
-│   └── *.md           # Topic-specific guidelines
-└── guides/            # Thinking checklists (NOT coding specs!)
-    ├── index.md       # Guide index
-    └── *.md           # Topic-specific guides
+├── backend/           # 后端编码标准
+│   ├── index.md       # 概述和链接
+│   └── *.md           # 主题特定规范
+├── frontend/          # 前端编码标准
+│   ├── index.md       # 概述和链接
+│   └── *.md           # 主题特定规范
+└── guides/            # 思考检查清单（不是编码规范！）
+    ├── index.md       # 指南索引
+    └── *.md           # 主题特定指南
 ```
 
-### CRITICAL: Spec vs Guide - Know the Difference
+### 关键：规范 vs 指南 - 了解区别
 
-| Type | Location | Purpose | Content Style |
+| 类型 | 位置 | 目的 | 内容风格 |
 |------|----------|---------|---------------|
-| **Spec** | `backend/*.md`, `frontend/*.md` | Tell AI "how to write code" | Detailed rules, code examples, forbidden patterns |
-| **Guide** | `guides/*.md` | Help AI "what to think about" | Checklists, questions, pointers to specs |
+| **规范** | `backend/*.md`, `frontend/*.md` | 告诉 AI"如何写代码" | 详细规则、代码示例、禁止模式 |
+| **指南** | `guides/*.md` | 帮助 AI"考虑什么" | 检查清单、问题、指向规范的指针 |
 
-**Decision Rule**: Ask yourself:
+**决策规则**：问自己：
 
-- "This is **how to write** the code" → Put in `backend/` or `frontend/`
-- "This is **what to consider** before writing" → Put in `guides/`
+- 这是**如何写**代码 → 放在 `backend/` 或 `frontend/`
+- 这是**写之前**考虑什么 → 放在 `guides/`
 
-**Example**:
+**示例**：
 
-| Learning | Wrong Location | Correct Location |
+| 学习内容 | 错误位置 | 正确位置 |
 |----------|----------------|------------------|
-| "Use `reconfigure()` not `TextIOWrapper` for Windows stdout" | ❌ `guides/cross-platform-thinking-guide.md` | ✅ `backend/script-conventions.md` |
-| "Remember to check encoding when writing cross-platform code" | ❌ `backend/script-conventions.md` | ✅ `guides/cross-platform-thinking-guide.md` |
+| "Windows stdout 使用 `reconfigure()` 而不是 `TextIOWrapper`" | ❌ `guides/cross-platform-thinking-guide.md` | ✅ `backend/script-conventions.md` |
+| "记住在写跨平台代码时检查编码" | ❌ `backend/script-conventions.md` | ✅ `guides/cross-platform-thinking-guide.md` |
 
-**Guides should be short checklists that point to specs**, not duplicate the detailed rules.
+**指南应该是指向规范的简短检查清单**，而不是复制详细规则。
 
 ---
 
-## Update Process
+## 更新流程
 
-### Step 1: Identify What You Learned
+### 步骤 1：识别你学到了什么
 
-Answer these questions:
+回答这些问题：
 
-1. **What did you learn?** (Be specific)
-2. **Why is it important?** (What problem does it prevent?)
-3. **Where does it belong?** (Which spec file?)
+1. **你学到了什么？**（具体点）
+2. **为什么重要？**（防止什么问题？）
+3. **它属于哪里？**（哪个规范文件？）
 
-### Step 2: Classify the Update Type
+### 步骤 2：分类更新类型
 
-| Type | Description | Action |
+| 类型 | 描述 | 操作 |
 |------|-------------|--------|
-| **Design Decision** | Why we chose approach X over Y | Add to "Design Decisions" section |
-| **Project Convention** | How we do X in this project | Add to relevant section with examples |
-| **New Pattern** | A reusable approach discovered | Add to "Patterns" section |
-| **Forbidden Pattern** | Something that causes problems | Add to "Anti-patterns" or "Don't" section |
-| **Common Mistake** | Easy-to-make error | Add to "Common Mistakes" section |
-| **Convention** | Agreed-upon standard | Add to relevant section |
-| **Gotcha** | Non-obvious behavior | Add warning callout |
+| **设计决策** | 为什么选择方法 X 而不是 Y | 添加到"设计决策"部分 |
+| **项目约定** | 我们在这个项目中如何做 X | 添加到相关部分并附示例 |
+| **新模式** | 发现的可重用方法 | 添加到"模式"部分 |
+| **禁止模式** | 导致问题的某些东西 | 添加到"反模式"或"不要做"部分 |
+| **常见错误** | 容易犯的错误 | 添加到"常见错误"部分 |
+| **约定** | 约定的标准 | 添加到相关部分 |
+| **陷阱** | 非显而易见的行为 | 添加警告提示 |
 
-### Step 3: Read the Target Spec
+### 步骤 3：阅读目标规范
 
-Before editing, read the current spec to:
-- Understand existing structure
-- Avoid duplicating content
-- Find the right section for your update
+编辑之前，阅读当前规范以：
+- 了解现有结构
+- 避免重复内容
+- 找到更新的正确位置
 
 ```bash
 cat .trellis/spec/<category>/<file>.md
 ```
 
-### Step 4: Make the Update
+### 步骤 4：进行更新
 
-Follow these principles:
+遵循这些原则：
 
-1. **Be Specific**: Include concrete examples, not just abstract rules
-2. **Explain Why**: State the problem this prevents
-3. **Show Code**: Add code snippets for patterns
-4. **Keep it Short**: One concept per section
+1. **具体**：包含具体示例，而不仅仅是抽象规则
+2. **解释原因**：说明这防止什么问题
+3. **展示代码**：为模式添加代码片段
+4. **保持简短**：每个部分一个概念
 
-### Step 5: Update the Index (if needed)
+### 步骤 5：更新索引（如需要）
 
-If you added a new section or the spec status changed, update the category's `index.md`.
+如果你添加了新部分或规范状态更改，更新类别的 `index.md`。
 
 ---
 
-## Update Templates
+## 更新模板
 
-### Adding a Design Decision
+### 添加设计决策
 
 ```markdown
-### Design Decision: [Decision Name]
+### 设计决策：[决策名称]
 
-**Context**: What problem were we solving?
+**背景**：我们在解决什么问题？
 
-**Options Considered**:
-1. Option A - brief description
-2. Option B - brief description
+**考虑的选项**：
+1. 选项 A - 简要描述
+2. 选项 B - 简要描述
 
-**Decision**: We chose Option X because...
+**决策**：我们选择选项 X，因为...
 
-**Example**:
+**示例**：
 \`\`\`typescript
-// How it's implemented
+// 如何实现
 code example
 \`\`\`
 
-**Extensibility**: How to extend this in the future...
+**可扩展性**：未来如何扩展...
 ```
 
-### Adding a Project Convention
+### 添加项目约定
 
 ```markdown
-### Convention: [Convention Name]
+### 约定：[约定名称]
 
-**What**: Brief description of the convention.
+**什么**：约定的简要描述。
 
-**Why**: Why we do it this way in this project.
+**为什么**：我们为什么在这个项目中这样做。
 
-**Example**:
+**示例**：
 \`\`\`typescript
-// How to follow this convention
+// 如何遵循此约定
 code example
 \`\`\`
 
-**Related**: Links to related conventions or specs.
+**相关**：相关约定或规范的链接。
 ```
 
-### Adding a New Pattern
+### 添加新模式
 
 ```markdown
-### Pattern Name
+### 模式名称
 
-**Problem**: What problem does this solve?
+**问题**：这解决什么问题？
 
-**Solution**: Brief description of the approach.
+**解决方案**：方法的简要描述。
 
-**Example**:
+**示例**：
 \`\`\`
-// Good
+// 好
 code example
 
-// Bad
+// 坏
 code example
 \`\`\`
 
-**Why**: Explanation of why this works better.
+**为什么**：解释为什么这更好。
 ```
 
-### Adding a Forbidden Pattern
+### 添加禁止模式
 
 ```markdown
-### Don't: Pattern Name
+### 不要：模式名称
 
-**Problem**:
+**问题**：
 \`\`\`
-// Don't do this
+// 不要这样做
 bad code example
 \`\`\`
 
-**Why it's bad**: Explanation of the issue.
+**为什么不好**：解释问题所在。
 
-**Instead**:
+**应该这样做**：
 \`\`\`
-// Do this instead
+// 这样做
 good code example
 \`\`\`
 ```
 
-### Adding a Common Mistake
+### 添加常见错误
 
 ```markdown
-### Common Mistake: Description
+### 常见错误：[描述]
 
-**Symptom**: What goes wrong
+**症状**：哪里出错了
 
-**Cause**: Why this happens
+**原因**：为什么会发生
 
-**Fix**: How to correct it
+**修复**：如何纠正
 
-**Prevention**: How to avoid it in the future
+**预防**：未来如何避免
 ```
 
-### Adding a Gotcha
+### 添加陷阱
 
 ```markdown
-> **Warning**: Brief description of the non-obvious behavior.
+> **警告**：非显而易见行为的简要描述。
 >
-> Details about when this happens and how to handle it.
+> 这种情况何时发生以及如何处理。
 ```
 
 ---
 
-## Interactive Mode
+## 交互模式
 
-If you're unsure what to update, answer these prompts:
+如果你不确定要更新什么，回答这些提示：
 
-1. **What did you just finish?**
-   - [ ] Fixed a bug
-   - [ ] Implemented a feature
-   - [ ] Refactored code
-   - [ ] Had a discussion about approach
+1. **你刚刚完成了什么？**
+   - [ ] 修复了 bug
+   - [ ] 实施了功能
+   - [ ] 重构了代码
+   - [ ] 讨论了方法
 
-2. **What did you learn or decide?**
-   - Design decision (why X over Y)
-   - Project convention (how we do X)
-   - Non-obvious behavior (gotcha)
-   - Better approach (pattern)
+2. **你学到了或决定了什么？**
+   - 设计决策（为什么 X 胜过 Y）
+   - 项目约定（我们如何做 X）
+   - 非显而易见的行为（陷阱）
+   - 更好的方法（模式）
 
-3. **Would future AI/developers need to know this?**
-   - To understand how the code works → Yes, update spec
-   - To maintain or extend the feature → Yes, update spec
-   - To avoid repeating mistakes → Yes, update spec
-   - Purely one-off implementation detail → Maybe skip
+3. **未来的 AI/开发者需要知道这个吗？**
+   - 理解代码如何工作 → 是，更新规范
+   - 维护或扩展功能 → 是，更新规范
+   - 避免重复错误 → 是，更新规范
+   - 纯粹一次性的实施细节 → 也许跳过
 
-4. **Which area does it relate to?**
-   - [ ] Backend code
-   - [ ] Frontend code
-   - [ ] Cross-layer data flow
-   - [ ] Code organization/reuse
-   - [ ] Quality/testing
-
----
-
-## Quality Checklist
-
-Before finishing your spec update:
-
-- [ ] Is the content specific and actionable?
-- [ ] Did you include a code example?
-- [ ] Did you explain WHY, not just WHAT?
-- [ ] Is it in the right spec file?
-- [ ] Does it duplicate existing content?
-- [ ] Would a new team member understand it?
+4. **它涉及哪个领域？**
+   - [ ] 后端代码
+   - [ ] 前端代码
+   - [ ] 跨层数据流
+   - [ ] 代码组织/重用
+   - [ ] 质量/测试
 
 ---
 
-## Relationship to Other Commands
+## 质量检查清单
+
+完成规范更新前：
+
+- [ ] 内容具体且可操作？
+- [ ] 包含代码示例？
+- [ ] 解释了为什么，而不仅仅是做什么？
+- [ ] 在正确的规范文件中？
+- [ ] 重复了现有内容？
+- [ ] 新的团队成员能理解？
+
+---
+
+## 与其他命令的关系
 
 ```
-Development Flow:
-  Learn something → $update-spec → Knowledge captured
+开发流程：
+  学到东西 → $update-spec → 知识捕获
        ↑                                  ↓
-  $break-loop ←──────────────────── Future sessions benefit
-  (deep bug analysis)
+  $break-loop ←──────────────────── 未来会话受益
+  （深度 bug 分析）
 ```
 
-- `$break-loop` - Analyzes bugs deeply, often reveals spec updates needed
-- `$update-spec` - Actually makes the updates (this skill)
-- `$finish-work` - Reminds you to check if specs need updates
+- `$break-loop` - 深入分析 bug，经常揭示需要规范更新
+- `$update-spec` - 实际进行更新（此 skill）
+- `$finish-work` - 提醒你检查是否需要更新规范
 
 ---
 
-## Core Philosophy
+## 核心哲学
 
-> **Specs are living documents. Every debugging session, every "aha moment" is an opportunity to make the spec better.**
+> **规范是活文档。每个调试会话、每个"啊哈时刻"都是让规范更好的机会。**
 
-The goal is **institutional memory**:
-- What one person learns, everyone benefits from
-- What AI learns in one session, persists to future sessions
-- Mistakes become documented guardrails
+目标是**制度性记忆**：
+- 一个人学到的东西，每个人都受益
+- AI 在一个会话中学到的，持久到未来会话
+- 错误变成文档化的防护栏

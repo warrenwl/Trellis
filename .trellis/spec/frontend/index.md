@@ -1,39 +1,39 @@
-# Frontend Development Guidelines
+# 前端开发指南
 
-> Best practices for frontend development in this project.
-
----
-
-## Overview
-
-This directory contains guidelines for frontend development. Fill in each file with your project's specific conventions.
+> 本项目前端开发的最佳实践。
 
 ---
 
-## Guidelines Index
+## 概述
 
-| Guide | Description | Status |
+本目录包含前端开发指南。请用您项目的具体约定填写每个文件。
+
+---
+
+## 指南目录
+
+| 指南 | 描述 | 状态 |
 |-------|-------------|--------|
-| [Directory Structure](./directory-structure.md) | Module organization and file layout | ⬜ To fill |
-| [Component Guidelines](./component-guidelines.md) | Component patterns, props, composition | ⬜ To fill |
-| [Hook Guidelines](./hook-guidelines.md) | Custom hooks, data fetching patterns | ⬜ To fill |
-| [State Management](./state-management.md) | Local state, global state, server state | ⬜ To fill |
-| [Quality Guidelines](./quality-guidelines.md) | Code standards, forbidden patterns | ⬜ To fill |
-| [Type Safety](./type-safety.md) | Type patterns, validation | ⬜ To fill |
+| [目录结构](./directory-structure.md) | 模块组织和文件布局 | 待填写 |
+| [组件指南](./component-guidelines.md) | 组件模式、属性、组合 | 待填写 |
+| [钩子指南](./hook-guidelines.md) | 自定义钩子、数据获取模式 | 待填写 |
+| [状态管理](./state-management.md) | 本地状态、全局状态、服务端状态 | 待填写 |
+| [质量指南](./quality-guidelines.md) | 代码标准、禁止模式 | 待填写 |
+| [类型安全](./type-safety.md) | 类型模式、验证 | 待填写 |
 
 ---
 
-## How to Fill These Guidelines
+## 如何填写这些指南
 
-For each guideline file:
+对于每个指南文件：
 
-1. Document your project's **actual conventions** (not ideals)
-2. Include **code examples** from your codebase
-3. List **forbidden patterns** and why
-4. Add **common mistakes** your team has made
+1. 记录您项目的**实际约定**（而非理想状态）
+2. 包含来自您代码库的**代码示例**
+3. 列出**禁止的模式**及其原因
+4. 添加您团队**常见的错误**
 
-The goal is to help AI assistants and new team members understand how YOUR project works.
+目标是帮助 AI 助手和新团队成员了解您的项目是如何工作的。
 
 ---
 
-**Language**: All documentation should be written in **English**.
+**语言**：所有文档应使用**中文**编写。
